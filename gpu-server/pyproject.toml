@@ -1,0 +1,18 @@
+[project]
+name = "mgo-experience-gpu-server"
+version = "0.0.1"
+description = ""
+authors = [
+    {name = "vonbrank", email = "vonbrank@outlook.com"},
+]
+dependencies = [
+    "flask>=3.0.2",
+    "flask-restful>=0.3.10",
+    "python-dotenv>=1.0.1",
+]
+requires-python = ">=3.9"
+readme = "README.md"
+license = {text = "MIT"}
+
+[tool.pdm.scripts]
+start = "python src/main.py"
