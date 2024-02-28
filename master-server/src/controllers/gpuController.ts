@@ -18,9 +18,7 @@ export const register = catchAsync(async (req: AppRequest, res, next) => {
 
   res.status(201).json({
     status: "success",
-    data: {
-      newGpu,
-    },
+    data: newGpu,
   });
 });
 
@@ -66,9 +64,7 @@ export const updateGpu = catchAsync(async (req: AppRequest, res, next) => {
 
   res.status(200).json({
     status: "success",
-    data: {
-      data: newGpu,
-    },
+    data: newGpu,
   });
 });
 
@@ -87,9 +83,7 @@ export const startUp = catchAsync(async (req: AppRequest, res, next) => {
   );
   res.status(200).json({
     status: "success",
-    data: {
-      data: newGpu,
-    },
+    data: newGpu,
   });
 });
 
@@ -105,9 +99,7 @@ export const shutDown = catchAsync(async (req: AppRequest, res, next) => {
 
   res.status(204).json({
     status: "success",
-    data: {
-      data: null,
-    },
+    data: null,
   });
 });
 
@@ -124,8 +116,6 @@ export const heartBeat = catchAsync(async (req: AppRequest, res, next) => {
   );
   res.status(200).json({
     status: "success",
-    data: {
-      data: newGpu,
-    },
+    data: newGpu,
   });
 });
