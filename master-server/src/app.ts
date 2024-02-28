@@ -2,6 +2,7 @@ import express, { Request, Response, NextFunction } from "express";
 import morgan from "morgan";
 
 import userRouter from "./routes/userRoutes";
+import gpuRouter from "./routes/gpuRoutes";
 import AppError from "./utils/appError";
 import { handleError } from "./controllers/errorController";
 import AppRequest from "./utils/appRequest";
@@ -39,6 +40,7 @@ app.use((req: AppRequest, res: Response, next: NextFunction) => {
 });
 
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/gpus", gpuRouter);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Cannot find ${req.originalUrl} on this server!`, 404));
