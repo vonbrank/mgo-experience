@@ -6,11 +6,13 @@ authors = [
     {name = "vonbrank", email = "vonbrank@outlook.com"},
 ]
 dependencies = [
-    "flask>=3.0.2",
-    "flask-restful>=0.3.10",
     "python-dotenv>=1.0.1",
-    "Flask-SQLAlchemy>=3.1.1",
-    "requests>=2.31.0",
+    "aiohttp>=3.9.3",
+    "fastapi>=0.110.0",
+    "uvicorn>=0.27.1",
+    "starlette>=0.36.3",
+    "sqlalchemy>=2.0.27",
+    "httpx>=0.27.0",
 ]
 requires-python = ">=3.9"
 readme = "README.md"
