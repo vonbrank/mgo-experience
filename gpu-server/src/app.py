@@ -1,21 +1,24 @@
+from fastapi import FastAPI
+from routes import hello_world_router
+from contextlib import asynccontextmanager
+from services.master_server_service import start_master_server_service
+from database import Base, engine
+import asyncio
 
-from flask import Flask
-from flask_restful import Api
-from flask_sqlalchemy import SQLAlchemy
 
-api = Api()
-db = SQLAlchemy()
+@asynccontextmanager
+async def lifespan(
+    app: FastAPI,
+):
+
+    asyncio.create_task(start_master_server_service())
+
+    yield
 
 
-def create_app():
-    app = Flask(__name__)
+Base.metadata.create_all(bind=engine)
 
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app = FastAPI(lifespan=lifespan)
 
-    from routes import hello_world_route
 
-    api.init_app(app)
-    db.init_app(app)
-
-    return app
+app.include_router(hello_world_router)

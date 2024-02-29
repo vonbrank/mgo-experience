@@ -1,7 +1,7 @@
-from flask import make_response
-from flask_restful import Resource
+from routes.hello_world_route import router
+from fastapi import Response
 
 
-class HelloWorldController(Resource):
-    def get(self):
-        return make_response("Python Flask Restful Server", 200)
+@router.get("/", tags=["ROOT"])
+async def hello_world():
+    return Response(content="Python Flask Restful Server")

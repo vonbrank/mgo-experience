@@ -1,3 +1,1 @@
-import controllers.hello_world_controller
 
-HelloWorldController = controllers.hello_world_controller.HelloWorldController

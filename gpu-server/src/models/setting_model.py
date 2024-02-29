@@ -1,10 +1,10 @@
-from app import db
+from database import Base
+from sqlalchemy import String, Column, Integer
 
 
-class Setting(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    key = db.Column(db.String(50), unique=True, nullable=False)
-    value = db.Column(db.String(50), nullable=True)
+class Setting(Base):
+    __tablename__ = "settings"
 
-    def __repr__(self):
-        return f"{self.key} = {self.value}"
+    id = Column(Integer, primary_key=True)
+    key = Column(String, unique=True, nullable=False)
+    value = Column(String, nullable=True)

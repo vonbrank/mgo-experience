@@ -1,5 +1,5 @@
-from controllers import HelloWorldController
-from app import api
+from fastapi import APIRouter
 
-api.add_resource(HelloWorldController, "/")
-print("add_resource")
+router = APIRouter()
+
+from controllers import hello_world_controller
