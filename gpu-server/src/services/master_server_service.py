@@ -58,7 +58,7 @@ async def start_up_connection(gpu_id: str):
         response = await client.post(url=url, json=data)
         if response.status_code == 200:
             result = response.json()
-            print(f"start up result: {result}")
+            # print(f"start up result: {result}")
 
 
 async def heart_beat():
