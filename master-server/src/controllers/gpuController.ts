@@ -4,6 +4,7 @@ import AppError from "../utils/appError";
 import AppRequest from "../utils/appRequest";
 import catchAsync from "../utils/catchAsync";
 import * as factory from "./handleFactory";
+import { publicKey } from "../config";
 
 export const getAllGpus = factory.getAll(Gpu);
 
@@ -18,7 +19,10 @@ export const register = catchAsync(async (req: AppRequest, res, next) => {
 
   res.status(201).json({
     status: "success",
-    data: newGpu,
+    data: {
+      gpu: newGpu,
+      publicKey,
+    },
   });
 });
 
@@ -64,7 +68,9 @@ export const updateGpu = catchAsync(async (req: AppRequest, res, next) => {
 
   res.status(200).json({
     status: "success",
-    data: newGpu,
+    data: {
+      gpu: newGpu,
+    },
   });
 });
 
@@ -83,7 +89,10 @@ export const startUp = catchAsync(async (req: AppRequest, res, next) => {
   );
   res.status(200).json({
     status: "success",
-    data: newGpu,
+    data: {
+      gpu: newGpu,
+      publicKey,
+    },
   });
 });
 
@@ -116,6 +125,8 @@ export const heartBeat = catchAsync(async (req: AppRequest, res, next) => {
   );
   res.status(200).json({
     status: "success",
-    data: newGpu,
+    data: {
+      gpu: newGpu,
+    },
   });
 });

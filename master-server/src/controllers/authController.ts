@@ -8,17 +8,18 @@ import crypto from "crypto";
 import { Request, Response, NextFunction, CookieOptions } from "express";
 import { Document } from "mongoose";
 import AppRequest from "../utils/appRequest";
+import { publicKey, privateKey } from "../config";
 
 const signToken = (id: string) => {
-  const jwtSecret = process.env.JWT_SECRET;
 
-  if (jwtSecret) {
-    return jwt.sign({ id }, jwtSecret, {
+  if (privateKey) {
+    return jwt.sign({ id }, privateKey, {
+      algorithm: "ES256",
       expiresIn: process.env.JWT_EXPIRES_IN,
     });
   }
 
-  throw new AppError("JWT_SECRET does not exist", 500);
+  throw new AppError("jwt es256 private key does not exist", 500);
 };
 
 const createAndSendToken = (
@@ -118,7 +119,7 @@ const protect = catchAsync(async (req: AppRequest, res, next) => {
     string,
     string,
     JwtPayload | string | undefined
-  >(jwt.verify)(token, process.env.JWT_SECRET || "");
+  >(jwt.verify)(token, publicKey);
 
   if (decode === undefined || typeof decode === "string") {
     throw new AppError("The token type is not valid.", 401);
