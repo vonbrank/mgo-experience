@@ -1,11 +1,11 @@
-import { CssBaseline, ThemeProvider } from "@mui/material";
-import { lightTheme } from "./theme/theme";
+import { AppThemeProvider } from "./theme";
+import { ToastProvider } from "material-ui-toast-wrapper";
 
 function App() {
   return (
-    <ThemeProvider theme={lightTheme}>
-      <CssBaseline />
-    </ThemeProvider>
+    <AppThemeProvider lightOrDarkMode="light">
+      <ToastProvider></ToastProvider>
+    </AppThemeProvider>
   );
 }
 
