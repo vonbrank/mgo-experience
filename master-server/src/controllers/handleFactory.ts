@@ -3,7 +3,6 @@ import AppError from "../utils/appError";
 import APIFeatures from "../utils/apiFeatures";
 import { Model, PopulateOptions, Query } from "mongoose";
 import { Request } from "express";
-import { IUser } from "../models/userModel";
 
 const deleteOne = <TRawDocType>(Model: Model<TRawDocType, {}, {}>) =>
   catchAsync(async (request, response, next) => {
@@ -31,9 +30,7 @@ const updateOne = <TRawDocType>(Model: Model<TRawDocType, {}, {}>) =>
     );
     response.status(200).json({
       status: "success",
-      data: {
-        data: document,
-      },
+      data: document,
     });
   });
 
@@ -42,9 +39,7 @@ const createOne = <TRawDocType>(Model: Model<TRawDocType, {}, {}>) =>
     const document = await Model.create(request.body);
     response.status(201).json({
       status: "success",
-      data: {
-        data: document,
-      },
+      data: document,
     });
   });
 
@@ -67,24 +62,17 @@ const getOne = <TRawDocType>(
 
     response.status(200).json({
       status: "success",
-      data: {
-        data: document,
-      },
+      data: document,
     });
   });
 
-const getAll = <TRawDocType>(Model: Model<TRawDocType, {}, {}>) =>
+const getAll = <TRawDocType>(
+  Model: Model<TRawDocType, {}, {}>,
+  onQueryComplete: (request: Request, document: any[]) => void = () => {}
+) =>
   catchAsync(
-    async (
-      request: Request<{ [index: string]: string }, {}, {}, {}>,
-      response
-    ) => {
-      let filter = {};
-
-      if (request.params.tourId)
-        filter = { tour: request.params.tourId, ...filter };
-
-      const query = Model.find(filter);
+    async (request: Request<{ [index: string]: string }, {}, {}>, response) => {
+      let query: Query<any, any> = Model.find();
 
       const features = new APIFeatures(query, request.query)
         .filter()
@@ -93,13 +81,12 @@ const getAll = <TRawDocType>(Model: Model<TRawDocType, {}, {}>) =>
         .paginate();
 
       const document = await features.query;
+      onQueryComplete(request, document);
 
       response.status(200).json({
         status: "success",
         results: document.length,
-        data: {
-          data: document,
-        },
+        data: document,
       });
     }
   );

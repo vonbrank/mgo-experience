@@ -6,7 +6,16 @@ import catchAsync from "../utils/catchAsync";
 import * as factory from "./handleFactory";
 import { publicKey } from "../config";
 
-export const getAllGpus = factory.getAll(Gpu);
+export const getAllGpus = factory.getAll(
+  Gpu,
+  (request: AppRequest, document) => {
+    const user = request.user;
+    if (user && user.role === "user")
+      document.forEach((item) => {
+        item.privilegedUsers = undefined;
+      });
+  }
+);
 
 export const getGpu = factory.getOne(Gpu);
 

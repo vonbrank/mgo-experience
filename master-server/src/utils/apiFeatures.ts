@@ -6,7 +6,7 @@ class APIFeatures<ResultType, DocType> {
 
   constructor(
     query: Query<ResultType, DocType>,
-    queryString: { [index: string]: string }
+    queryString: { [index: string]: any }
   ) {
     this.query = query;
     this.queryString = queryString;
@@ -40,6 +40,7 @@ class APIFeatures<ResultType, DocType> {
 
   limitFields() {
     let fields = this.queryString.fields;
+    console.log("fields = ", fields);
     if (typeof fields === "string") {
       this.query.select(fields.split(",").join(" "));
     } else {

@@ -1,6 +1,7 @@
 import express from "express";
 import * as userController from "../controllers/userController";
 import * as authController from "../controllers/authController";
+import * as gpuController from "../controllers/gpuController";
 
 const router = express.Router();
 
@@ -11,6 +12,8 @@ router.post("/forgotPassword", authController.forgotPassword);
 router.patch("/resetPassword/:token", authController.resetPassword);
 
 router.post("/updateMyPassword", authController.updatePassword);
+
+router.get("/:userId/gpus", authController.protect, gpuController.getAllGpus);
 
 router.use(authController.protect);
 

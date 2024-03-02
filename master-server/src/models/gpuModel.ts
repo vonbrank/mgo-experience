@@ -7,7 +7,7 @@ export interface IGpu {
   lastHeartBeatAt?: Date;
 }
 
-export interface IGpuMethods {}
+export interface IGpuMethods { }
 
 export type GpuModel = Model<IGpu, {}, IGpuMethods>;
 
