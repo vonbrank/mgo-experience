@@ -27,37 +27,54 @@ const Login = () => {
           <Paper sx={{ overflow: "hidden" }}>
             <Stack direction={"row"}>
               <Box sx={{ flex: 1, width: 0 }}>
-                <Box paddingX={"6.4rem"} paddingY={"6.4rem"}>
-                  <Typography textAlign={"center"} variant="h5">
-                    MGO Experience
-                  </Typography>
+                <Stack
+                  paddingX={"6.4rem"}
+                  paddingTop={"6.4rem"}
+                  paddingBottom={"3.2rem"}
+                  justifyContent={"space-between"}
+                  spacing={"4.8rem"}
+                >
+                  <Box>
+                    <Typography
+                      textAlign={"center"}
+                      variant="h5"
+                      color={(theme) => theme.palette.primary.main}
+                    >
+                      MGO Experience
+                    </Typography>
 
-                  <Typography
-                    textAlign={"center"}
-                    variant="h6"
-                    marginTop={"4.8rem"}
-                  >
-                    Sign In your account
-                  </Typography>
+                    <Typography
+                      textAlign={"center"}
+                      variant="h6"
+                      marginTop={"3.6rem"}
+                    >
+                      Sign In your account
+                    </Typography>
 
-                  <Stack spacing={"3rem"} marginTop={"3.6rem"}>
-                    <Stack spacing={"1.2rem"}>
-                      <Typography variant="subtitle1">Email</Typography>
-                      <TextField fullWidth />
+                    <Stack spacing={"2.4rem"} marginTop={"1.8rem"}>
+                      <Stack spacing={"1.2rem"}>
+                        <Typography variant="subtitle1">Email</Typography>
+                        <TextField size="small" autoComplete="off" fullWidth />
+                      </Stack>
+                      <Stack spacing={"1.2rem"}>
+                        <Typography variant="subtitle1">Password</Typography>
+                        <TextField size="small" autoComplete="off" fullWidth />
+                      </Stack>
                     </Stack>
-                    <Stack spacing={"1.2rem"}>
-                      <Typography variant="subtitle1">Password</Typography>
-                      <TextField fullWidth />
-                    </Stack>
-                  </Stack>
-                  <Button
-                    fullWidth
-                    variant="contained"
-                    sx={{ marginTop: "3.6rem" }}
-                  >
-                    SIGN IN
-                  </Button>
-                </Box>
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      sx={{ marginTop: "3.6rem" }}
+                    >
+                      SIGN IN
+                    </Button>
+                  </Box>
+                  <Box>
+                    <Typography textAlign={"center"}>
+                      © Copyright 2024
+                    </Typography>
+                  </Box>
+                </Stack>
               </Box>
               <Stack sx={{ flex: 1, width: 0 }}>
                 <img
