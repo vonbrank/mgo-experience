@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { useMediaQuery } from "@mui/material";
 import { createTheme, ThemeOptions, ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
+import { green, pink, teal } from "@mui/material/colors";
 
 interface AppThemeProviderProps {
   lightOrDarkMode?: "light" | "dark" | "follow-system";
@@ -58,11 +59,9 @@ export const AppThemeProvider = (props: AppThemeProviderProps) => {
     },
     palette: {
       primary: {
-        main: "#4fa03c",
+        main: green[600],
       },
-      secondary: {
-        main: "#f50057",
-      },
+      secondary: pink,
     },
   };
 
@@ -87,16 +86,37 @@ export const SidebarThemeProvider = (props: AppThemeProviderProps) => {
     },
     palette: {
       primary: {
-        main: "#4fa03c",
+        main: green[600],
       },
-      secondary: {
-        main: "#f50057",
-      },
+      secondary: pink,
     },
   };
   const theme = useLightOrDarkModeTheme({
     lightThemeOptions: themeOptions,
     lightOrDarkMode: "dark",
+  });
+
+  return <ThemeProvider theme={theme}>{children}</ThemeProvider>;
+};
+
+export const SecondaryLevelSidebarThemeProvider = (
+  props: AppThemeProviderProps
+) => {
+  const { lightOrDarkMode, children } = props;
+  const themeOptions: ThemeOptions = {
+    typography: {
+      htmlFontSize: 10,
+    },
+    palette: {
+      primary: {
+        main: teal[900],
+      },
+      secondary: pink,
+    },
+  };
+  const theme = useLightOrDarkModeTheme({
+    lightThemeOptions: themeOptions,
+    lightOrDarkMode,
   });
 
   return <ThemeProvider theme={theme}>{children}</ThemeProvider>;
