@@ -8,6 +8,7 @@ import {
   Tabs,
   Typography,
   alpha,
+  useTheme,
 } from "@mui/material";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
@@ -18,6 +19,7 @@ import { grey } from "@mui/material/colors";
 import { useEffect, useState } from "react";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { MonitoringBlockContainer } from "../../components/Container";
+import ReactApexChart from "react-apexcharts";
 
 interface GpuInfo {
   id: string;
@@ -343,7 +345,57 @@ const MonitoringInformationContainer = (
   );
 };
 
+function generateSmoothCPULoadValues() {
+  const currentTime = Date.now();
+  let values: [number, number][] = [];
+  const maxCPULoad = 100;
+  let prevLoad = Math.floor(Math.random() * (maxCPULoad + 1));
+
+  for (let i = 100; i >= 0; i--) {
+    const amplitude = Math.round(Math.random() * 10) + 10;
+    const nextLoad =
+      prevLoad + Math.floor(Math.random() * amplitude) - amplitude / 2; // Random change up to 3 units
+    const newLoad = Math.max(0, Math.min(maxCPULoad, nextLoad)); // Ensure load stays within 0-100 range
+
+    values = [...values, [currentTime - i * 1000, newLoad]];
+    prevLoad = newLoad;
+  }
+  return values;
+}
+
 export const GpuMonitoringOverview = () => {
+  const theme = useTheme();
+
+  const [cpuUsageData, setCpuUsageDate] = useState(
+    generateSmoothCPULoadValues()
+  );
+
+  const handleUpdateData = () => {
+    setCpuUsageDate((current) => {
+      const maxCPULoad = 100;
+      const newData = [...current];
+      const lastItem = newData[newData.length - 1];
+      const amplitude = Math.round(Math.random() * 10);
+      const nextLoad =
+        lastItem[1] + Math.floor(Math.random() * amplitude) - amplitude / 2;
+      const newLoad = Math.max(0, Math.min(maxCPULoad, nextLoad));
+      const newItem: [number, number] = [lastItem[0] + 1000, newLoad];
+      newData.shift();
+      newData.push(newItem);
+      return newData;
+    });
+  };
+
+  useEffect(() => {
+    const intervalHandler = setInterval(() => {
+      handleUpdateData();
+    }, 1000);
+
+    return () => {
+      clearInterval(intervalHandler);
+    };
+  }, []);
+
   return (
     <Stack>
       <Stack direction={"row"}>
@@ -378,13 +430,92 @@ export const GpuMonitoringOverview = () => {
             label="CPU Usage"
             padding={"2.4rem"}
             paddingBottom={"1.2rem"}
-          ></MonitoringBlockContainer>
+            spacing={"0rem"}
+          >
+            <Box height={"12rem"}>
+              <ReactApexChart
+                options={{
+                  chart: {
+                    type: "area",
+                    height: "100%",
+                    zoom: {
+                      enabled: false,
+                    },
+                    animations: {
+                      enabled: true,
+                    },
+                  },
+                  dataLabels: {
+                    enabled: false,
+                  },
+                  stroke: {
+                    curve: "smooth",
+                  },
+                  xaxis: {
+                    type: "datetime",
+                    range: 20000,
+                  },
+                  yaxis: {
+                    opposite: true,
+                    stepSize: 50,
+                  },
+                }}
+                series={[
+                  {
+                    name: "CPU Usage",
+                    data: cpuUsageData,
+                  },
+                ]}
+                type="area"
+                height={"100%"}
+              />
+            </Box>
+          </MonitoringBlockContainer>
           <Divider flexItem />
           <MonitoringBlockContainer
             label="RAM Usage"
             padding={"2.4rem"}
-            paddingTop={"1.2rem"}
-          ></MonitoringBlockContainer>
+            paddingY={"1.2rem"}
+          >
+            <Box height={"12rem"}>
+              <ReactApexChart
+                options={{
+                  chart: {
+                    type: "area",
+                    height: "100%",
+                    zoom: {
+                      enabled: false,
+                    },
+                    animations: {
+                      enabled: true,
+                    },
+                  },
+                  dataLabels: {
+                    enabled: false,
+                  },
+                  stroke: {
+                    curve: "smooth",
+                  },
+                  xaxis: {
+                    type: "datetime",
+                    range: 20000,
+                  },
+                  yaxis: {
+                    opposite: true,
+                    stepSize: 50,
+                  },
+                }}
+                series={[
+                  {
+                    name: "CPU Usage",
+                    data: cpuUsageData,
+                  },
+                ]}
+                type="area"
+                height={"100%"}
+              />
+            </Box>
+          </MonitoringBlockContainer>
         </Stack>
       </Stack>
       <Divider />

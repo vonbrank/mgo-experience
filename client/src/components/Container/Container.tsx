@@ -246,10 +246,27 @@ interface MonitoringBlockContainerProps extends StackProps {
 export const MonitoringBlockContainer = (
   props: MonitoringBlockContainerProps
 ) => {
-  const { label, children, padding, ...others } = props;
+  const {
+    label,
+    children,
+    padding,
+    paddingTop,
+    paddingBottom,
+    paddingLeft,
+    paddingRight,
+    spacing = "1.2rem",
+    ...others
+  } = props;
   return (
     <Stack {...others}>
-      <Stack padding={padding} spacing={children ? "1.2rem" : undefined}>
+      <Stack
+        padding={padding}
+        paddingLeft={paddingLeft}
+        paddingBottom={paddingBottom}
+        paddingTop={paddingTop}
+        paddingRight={paddingRight}
+        spacing={spacing}
+      >
         <Typography fontWeight={"bold"}>{label}</Typography>
         <Box>{children}</Box>
       </Stack>
