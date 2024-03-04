@@ -1,4 +1,4 @@
-import { Badge, Stack, Typography } from "@mui/material";
+import { Badge, Stack, StackProps, Typography } from "@mui/material";
 import React, { useState } from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import Drawer from "@mui/material/Drawer";
@@ -235,6 +235,24 @@ export const AppDefaultLayout = () => {
           <Menu />
         </Fab>
       </Zoom>
+    </Stack>
+  );
+};
+
+interface MonitoringBlockContainerProps extends StackProps {
+  label: string;
+}
+
+export const MonitoringBlockContainer = (
+  props: MonitoringBlockContainerProps
+) => {
+  const { label, children, padding, ...others } = props;
+  return (
+    <Stack {...others}>
+      <Stack padding={padding} spacing={children ? "1.2rem" : undefined}>
+        <Typography fontWeight={"bold"}>{label}</Typography>
+        <Box>{children}</Box>
+      </Stack>
     </Stack>
   );
 };
