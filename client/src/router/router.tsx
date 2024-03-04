@@ -3,6 +3,8 @@ import Home from "../pages/Home";
 import Login from "../pages/Login";
 import { AppDefaultLayout } from "../components/Container";
 import NotFound from "../pages/NotFound";
+import GpuMonitoring from "../pages/GpuMonitoring";
+import { GpuDetailPanel } from "../pages/GpuMonitoring/GpuMonitoring";
 
 const customRouter = createBrowserRouter([
   {
@@ -19,12 +21,32 @@ const customRouter = createBrowserRouter([
         element: <AppDefaultLayout />,
         children: [
           {
-            path: "/",
+            path: "",
             element: <Home />,
           },
           {
             path: "monitoring-gpus",
-            element: <></>,
+            element: <GpuMonitoring />,
+            children: [
+              {
+                path: "",
+                element: <GpuDetailPanel />,
+              },
+              {
+                path: ":gpuId",
+                element: <GpuDetailPanel />,
+                children: [
+                  {
+                    path: "",
+                    element: <></>,
+                  },
+                  {
+                    path: ":monitoringType",
+                    element: <></>,
+                  },
+                ],
+              },
+            ],
           },
           {
             path: "gpu-management",

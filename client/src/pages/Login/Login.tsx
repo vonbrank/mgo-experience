@@ -10,12 +10,11 @@ import {
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
-
   const navigate = useNavigate();
 
   const handleSignIn = () => {
     navigate("/");
-  }
+  };
 
   return (
     <Box
@@ -36,7 +35,7 @@ const Login = () => {
             <Stack direction={"row"}>
               <Box sx={{ flex: 1, width: 0 }}>
                 <Stack
-                  paddingX={"6.4rem"}
+                  paddingX={"9.6rem"}
                   paddingTop={"6.4rem"}
                   paddingBottom={"3.2rem"}
                   justifyContent={"space-between"}
