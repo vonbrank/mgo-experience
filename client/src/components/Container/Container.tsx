@@ -26,7 +26,7 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { SidebarThemeProvider } from "../../theme";
 
-const drawerWidth = "24rem";
+const drawerWidth = "30rem";
 
 const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })<{
   open?: boolean;
@@ -212,9 +212,7 @@ export const AppDefaultLayout = () => {
               <Divider />
               <List>
                 <ListItem disablePadding>
-                  <ListItemButton
-                    component={NavLink}
-                    to={"/login"}>
+                  <ListItemButton component={NavLink} to={"/login"}>
                     <ListItemIcon>
                       <AccountCircleIcon />
                     </ListItemIcon>
