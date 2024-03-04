@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { useMediaQuery } from "@mui/material";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { createTheme, ThemeOptions, ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 
 interface AppThemeProviderProps {
@@ -8,8 +8,26 @@ interface AppThemeProviderProps {
   children?: React.ReactNode;
 }
 
-export const AppThemeProvider = (props: AppThemeProviderProps) => {
-  const { lightOrDarkMode = "follow-system", children } = props;
+interface UseLightOrDarkModeThemeOption {
+  lightThemeOptions: ThemeOptions;
+  darkThemeOptions?: ThemeOptions;
+  lightOrDarkMode?: "light" | "dark" | "follow-system";
+}
+
+const useLightOrDarkModeTheme = (option: UseLightOrDarkModeThemeOption) => {
+  const {
+    lightThemeOptions,
+    darkThemeOptions = {
+      ...lightThemeOptions,
+      palette: {
+        ...lightThemeOptions.palette,
+        mode: "dark",
+      },
+    },
+    lightOrDarkMode = "light",
+  } = option;
+
+  lightThemeOptions.palette && (lightThemeOptions.palette.mode = "light");
 
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
   const isDarkMode = useMemo(() => {
@@ -24,23 +42,34 @@ export const AppThemeProvider = (props: AppThemeProviderProps) => {
   }, [prefersDarkMode, lightOrDarkMode]);
 
   const theme = useMemo(
-    () =>
-      createTheme({
-        typography: {
-          htmlFontSize: 10,
-        },
-        palette: {
-          mode: isDarkMode ? "dark" : "light",
-          primary: {
-            main: "#4fa03c",
-          },
-          secondary: {
-            main: "#f50057",
-          },
-        },
-      }),
+    () => createTheme(isDarkMode ? darkThemeOptions : lightThemeOptions),
     [isDarkMode]
   );
+
+  return theme;
+};
+
+export const AppThemeProvider = (props: AppThemeProviderProps) => {
+  const { lightOrDarkMode = "follow-system", children } = props;
+
+  const themeOptions: ThemeOptions = {
+    typography: {
+      htmlFontSize: 10,
+    },
+    palette: {
+      primary: {
+        main: "#4fa03c",
+      },
+      secondary: {
+        main: "#f50057",
+      },
+    },
+  };
+
+  const theme = useLightOrDarkModeTheme({
+    lightThemeOptions: themeOptions,
+    lightOrDarkMode,
+  });
 
   return (
     <ThemeProvider theme={theme}>
@@ -52,12 +81,11 @@ export const AppThemeProvider = (props: AppThemeProviderProps) => {
 
 export const SidebarThemeProvider = (props: AppThemeProviderProps) => {
   const { children } = props;
-  const theme = createTheme({
+  const themeOptions: ThemeOptions = {
     typography: {
       htmlFontSize: 10,
     },
     palette: {
-      mode: "dark",
       primary: {
         main: "#4fa03c",
       },
@@ -65,6 +93,10 @@ export const SidebarThemeProvider = (props: AppThemeProviderProps) => {
         main: "#f50057",
       },
     },
+  };
+  const theme = useLightOrDarkModeTheme({
+    lightThemeOptions: themeOptions,
+    lightOrDarkMode: "dark",
   });
 
   return <ThemeProvider theme={theme}>{children}</ThemeProvider>;
