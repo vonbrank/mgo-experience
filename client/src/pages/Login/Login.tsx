@@ -7,8 +7,16 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
+
+  const navigate = useNavigate();
+
+  const handleSignIn = () => {
+    navigate("/");
+  }
+
   return (
     <Box
       sx={{
@@ -65,6 +73,7 @@ const Login = () => {
                       fullWidth
                       variant="contained"
                       sx={{ marginTop: "3.6rem" }}
+                      onClick={handleSignIn}
                     >
                       SIGN IN
                     </Button>

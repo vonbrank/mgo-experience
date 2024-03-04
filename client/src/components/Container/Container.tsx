@@ -212,7 +212,9 @@ export const AppDefaultLayout = () => {
               <Divider />
               <List>
                 <ListItem disablePadding>
-                  <ListItemButton>
+                  <ListItemButton
+                    component={NavLink}
+                    to={"/login"}>
                     <ListItemIcon>
                       <AccountCircleIcon />
                     </ListItemIcon>

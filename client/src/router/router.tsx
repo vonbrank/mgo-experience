@@ -2,6 +2,7 @@ import { createBrowserRouter, Outlet } from "react-router-dom";
 import Home from "../pages/Home";
 import Login from "../pages/Login";
 import { AppDefaultLayout } from "../components/Container";
+import NotFound from "../pages/NotFound";
 
 const customRouter = createBrowserRouter([
   {
@@ -11,6 +12,7 @@ const customRouter = createBrowserRouter([
         <Outlet />
       </>
     ),
+    errorElement: <NotFound />,
     children: [
       {
         path: "/",
