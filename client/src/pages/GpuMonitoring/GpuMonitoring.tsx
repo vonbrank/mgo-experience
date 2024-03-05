@@ -1,5 +1,7 @@
 import {
   Box,
+  Card,
+  CardHeader,
   Chip,
   Divider,
   IconButton,
@@ -304,26 +306,30 @@ export const GpuDetail = (props: GpuDetailProps) => {
 
   return (
     <SecondaryLevelSidebarThemeProvider>
-      <Stack
-        direction={"row"}
-        justifyContent={"space-between"}
-        paddingRight={"1.2rem"}
-      >
-        <Tabs value={currentTab} onChange={handleTabChange}>
-          {gpuDetailTabTypes.map((gpuDetailTabType) => (
-            <Tab
-              label={gpuDetailTabTypeToString(gpuDetailTabType)}
-              value={gpuDetailTabType}
-              key={gpuDetailTabType}
-            />
-          ))}
-        </Tabs>
-        <IconButton>
-          <SettingsIcon />
-        </IconButton>
+      <Stack maxHeight={"100vh"}>
+        <Stack
+          direction={"row"}
+          justifyContent={"space-between"}
+          paddingRight={"1.2rem"}
+        >
+          <Tabs value={currentTab} onChange={handleTabChange}>
+            {gpuDetailTabTypes.map((gpuDetailTabType) => (
+              <Tab
+                label={gpuDetailTabTypeToString(gpuDetailTabType)}
+                value={gpuDetailTabType}
+                key={gpuDetailTabType}
+              />
+            ))}
+          </Tabs>
+          <IconButton>
+            <SettingsIcon />
+          </IconButton>
+        </Stack>
+        <Divider flexItem />
+        <Box sx={{ flex: 1, overflowY: "scroll" }}>
+          {currentTab === "overview" && <GpuMonitoringOverview />}
+        </Box>
       </Stack>
-      <Divider />
-      {currentTab === "overview" && <GpuMonitoringOverview />}
     </SecondaryLevelSidebarThemeProvider>
   );
 };
@@ -352,10 +358,10 @@ function generateSmoothCPULoadValues() {
   let prevLoad = Math.floor(Math.random() * (maxCPULoad + 1));
 
   for (let i = 100; i >= 0; i--) {
-    const amplitude = Math.round(Math.random() * 10) + 10;
-    const nextLoad =
-      prevLoad + Math.floor(Math.random() * amplitude) - amplitude / 2; // Random change up to 3 units
-    const newLoad = Math.max(0, Math.min(maxCPULoad, nextLoad)); // Ensure load stays within 0-100 range
+    // const amplitude = Math.round(Math.random() * 10) + 10;
+    // const nextLoad =
+    //   prevLoad + Math.floor(Math.random() * amplitude) - amplitude / 2; // Random change up to 3 units
+    const newLoad = Math.floor(Math.random() * (maxCPULoad + 1)); // Ensure load stays within 0-100 range
 
     values = [...values, [currentTime - i * 1000, newLoad]];
     prevLoad = newLoad;
@@ -375,10 +381,10 @@ export const GpuMonitoringOverview = () => {
       const maxCPULoad = 100;
       const newData = [...current];
       const lastItem = newData[newData.length - 1];
-      const amplitude = Math.round(Math.random() * 10);
-      const nextLoad =
-        lastItem[1] + Math.floor(Math.random() * amplitude) - amplitude / 2;
-      const newLoad = Math.max(0, Math.min(maxCPULoad, nextLoad));
+      // const amplitude = Math.round(Math.random() * 10);
+      // const nextLoad =
+      //   lastItem[1] + Math.floor(Math.random() * amplitude) - amplitude / 2;
+      const newLoad = Math.floor(Math.random() * (maxCPULoad + 1));
       const newItem: [number, number] = [lastItem[0] + 1000, newLoad];
       newData.shift();
       newData.push(newItem);
@@ -404,24 +410,36 @@ export const GpuMonitoringOverview = () => {
           sx={{ flex: 1, width: 0 }}
           padding={"2.4rem"}
         >
-          <Stack spacing={"0.8rem"}>
-            <MonitoringInformationContainer
-              label="OS"
-              value="Manjaro Linux 23.1"
-            />
-            <MonitoringInformationContainer
-              label="CPU"
-              value="Intel Xeon E5-2697 v4"
-            />
-            <MonitoringInformationContainer label="RAM" value="256GB" />
-            <MonitoringInformationContainer
-              label="GPU"
-              value="NVIDIA Geforece RTX  3080 Ti"
-            />
-            <MonitoringInformationContainer
-              label="End Point"
-              value="127.0.0.1:5100"
-            />
+          <Stack
+            spacing={"0.8rem"}
+            sx={{
+              "& .MuiCardHeader-content": {
+                display: "flex",
+                flexDirection: "column-reverse",
+                "& .MuiCardHeader-subheader": {
+                  fontSize: "1.2rem",
+                },
+                "& .MuiCardHeader-title": {
+                  fontSize: "1.6rem",
+                },
+              },
+            }}
+          >
+            <Card>
+              <CardHeader title="Manjaro Linux 23.1" subheader="OS" />
+            </Card>
+            <Card>
+              <CardHeader title="Intel Xeon E5-2697 v4" subheader="CPU" />
+            </Card>
+            <Card>
+              <CardHeader title="256GB" subheader="RAM" />
+            </Card>
+            <Card>
+              <CardHeader title="NVIDIA Geforece RTX 3080 Ti" subheader="GPU" />
+            </Card>
+            <Card>
+              <CardHeader title="127.0.0.1:5100" subheader="End Point" />
+            </Card>
           </Stack>
         </MonitoringBlockContainer>
         <Divider orientation="vertical" flexItem />
@@ -432,7 +450,7 @@ export const GpuMonitoringOverview = () => {
             paddingBottom={"1.2rem"}
             spacing={"0rem"}
           >
-            <Box height={"12rem"}>
+            <Box height={"15rem"}>
               <ReactApexChart
                 options={{
                   chart: {
@@ -443,6 +461,9 @@ export const GpuMonitoringOverview = () => {
                     },
                     animations: {
                       enabled: true,
+                    },
+                    toolbar: {
+                      show: false,
                     },
                   },
                   dataLabels: {
@@ -475,9 +496,10 @@ export const GpuMonitoringOverview = () => {
           <MonitoringBlockContainer
             label="RAM Usage"
             padding={"2.4rem"}
-            paddingY={"1.2rem"}
+            // paddingY={"1.2rem"}
+            spacing={"0rem"}
           >
-            <Box height={"12rem"}>
+            <Box height={"15rem"}>
               <ReactApexChart
                 options={{
                   chart: {
@@ -486,8 +508,8 @@ export const GpuMonitoringOverview = () => {
                     zoom: {
                       enabled: false,
                     },
-                    animations: {
-                      enabled: true,
+                    toolbar: {
+                      show: false,
                     },
                   },
                   dataLabels: {
@@ -524,13 +546,99 @@ export const GpuMonitoringOverview = () => {
           label="GPU Core Usage"
           sx={{ flex: 1 }}
           padding={"2.4rem"}
-        ></MonitoringBlockContainer>
+        >
+          <Box height={"18rem"}>
+            <ReactApexChart
+              options={{
+                chart: {
+                  type: "area",
+                  height: "100%",
+                  zoom: {
+                    enabled: false,
+                  },
+                  toolbar: {
+                    show: false,
+                  },
+                },
+                dataLabels: {
+                  enabled: false,
+                },
+                stroke: {
+                  curve: "smooth",
+                },
+                xaxis: {
+                  type: "datetime",
+                  range: 20000,
+                },
+                yaxis: {
+                  opposite: true,
+                  stepSize: 50,
+                },
+              }}
+              series={[
+                {
+                  name: "CPU Usage",
+                  data: cpuUsageData,
+                },
+              ]}
+              type="area"
+              height={"100%"}
+            />
+          </Box>
+        </MonitoringBlockContainer>
         <Divider orientation="vertical" flexItem />
         <MonitoringBlockContainer
           label="GPU Memory Usage"
           sx={{ flex: 1 }}
           padding={"2.4rem"}
-        ></MonitoringBlockContainer>
+        >
+          <Box
+            height={"18rem"}
+            sx={{
+              overflow: "hidden",
+              "& .apexcharts-canvas": {
+                transform: "scale(1.5) translate(0, 15%)",
+              },
+            }}
+          >
+            <ReactApexChart
+              options={{
+                chart: {
+                  type: "radialBar",
+                  height: "100%",
+                  zoom: {
+                    enabled: false,
+                  },
+                  toolbar: {
+                    show: false,
+                  },
+                },
+
+                plotOptions: {
+                  radialBar: {
+                    hollow: {
+                      size: "70%",
+                    },
+                    startAngle: -120,
+                    endAngle: 120,
+                    dataLabels: {
+                      name: {
+                        fontSize: "1.2rem",
+                      },
+                      value: {
+                        fontSize: "3rem",
+                      },
+                    },
+                  },
+                },
+                labels: ["7.4GB/11GB"],
+              }}
+              series={[67]}
+              type="radialBar"
+              height={"100%"}
+            />
+          </Box>
+        </MonitoringBlockContainer>
       </Stack>
       <Divider />
       <MonitoringBlockContainer
