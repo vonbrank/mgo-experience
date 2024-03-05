@@ -8,13 +8,37 @@ import {
   Typography,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { useUserLogin, userUserData } from "../../features/auth/authAPI";
+import { useEffect, useState } from "react";
 
 const Login = () => {
   const navigate = useNavigate();
 
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const [userLoginResult, logingIn, loginError, userLogin] = useUserLogin();
+
   const handleSignIn = () => {
-    navigate("/");
+    userLogin({
+      email,
+      password,
+    });
   };
+
+  useEffect(() => {
+    if (userLoginResult && loginError === null) {
+      navigate("/");
+    }
+  }, [userLoginResult, loginError]);
+
+  const [fetchUserDataResult, , fetchUserDataError] = userUserData();
+
+  useEffect(() => {
+    if (fetchUserDataResult && fetchUserDataError === null) {
+      navigate("/");
+    }
+  }, [fetchUserDataResult, fetchUserDataError]);
 
   return (
     <Box
@@ -61,11 +85,23 @@ const Login = () => {
                     <Stack spacing={"2.4rem"} marginTop={"1.8rem"}>
                       <Stack spacing={"1.2rem"}>
                         <Typography variant="subtitle1">Email</Typography>
-                        <TextField size="small" autoComplete="off" fullWidth />
+                        <TextField
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          size="small"
+                          autoComplete="off"
+                          fullWidth
+                        />
                       </Stack>
                       <Stack spacing={"1.2rem"}>
                         <Typography variant="subtitle1">Password</Typography>
-                        <TextField size="small" autoComplete="off" fullWidth />
+                        <TextField
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          size="small"
+                          autoComplete="off"
+                          fullWidth
+                        />
                       </Stack>
                     </Stack>
                     <Button

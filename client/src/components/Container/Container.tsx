@@ -25,6 +25,8 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { SidebarThemeProvider } from "../../theme";
+import { userUserData } from "../../features/auth/authAPI";
+import { useAppSelector } from "../../store/hooks";
 
 const drawerWidth = "30rem";
 
@@ -99,6 +101,12 @@ export const AppDefaultLayout = () => {
       to: "/help",
     },
   ];
+
+  const { userData } = useAppSelector((state) => ({
+    userData: state.auth.user,
+  }));
+
+  const [, , , ,] = userUserData();
 
   return (
     <Stack direction={"row"} sx={{ position: "relative" }}>
@@ -216,7 +224,10 @@ export const AppDefaultLayout = () => {
                     <ListItemIcon>
                       <AccountCircleIcon />
                     </ListItemIcon>
-                    <ListItemText primary={"User Name"} secondary="username" />
+                    <ListItemText
+                      primary={userData?.email || ""}
+                      secondary={userData?.id || ""}
+                    />
                   </ListItemButton>
                 </ListItem>
               </List>
