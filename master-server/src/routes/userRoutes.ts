@@ -13,7 +13,7 @@ router.patch("/resetPassword/:token", authController.resetPassword);
 
 router.post("/updateMyPassword", authController.updatePassword);
 
-router.get("/:userId/gpus", authController.protect, gpuController.getAllGpus);
+router.get("/gpus", authController.protect, gpuController.getAllGpus);
 
 router.use(authController.protect);
 

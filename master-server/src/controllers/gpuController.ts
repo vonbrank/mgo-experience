@@ -8,6 +8,13 @@ import { publicKey } from "../config";
 
 export const getAllGpus = factory.getAll(
   Gpu,
+  (request: AppRequest, query) => {
+    if (Boolean(process.env.DEVELOPMENT_MODE_FAKE_GPU_ACTIVE_STATUS)) {
+      return query;
+    }
+
+    return query.find({ privilegedUsers: request.user?.id });
+  },
   (request: AppRequest, document) => {
     const user = request.user;
     if (user && user.role === "user")

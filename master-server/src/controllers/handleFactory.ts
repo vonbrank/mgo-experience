@@ -2,7 +2,7 @@ import catchAsync from "../utils/catchAsync";
 import AppError from "../utils/appError";
 import APIFeatures from "../utils/apiFeatures";
 import { Model, PopulateOptions, Query } from "mongoose";
-import { Request } from "express";
+import { Request, query } from "express";
 
 const deleteOne = <TRawDocType>(Model: Model<TRawDocType, {}, {}>) =>
   catchAsync(async (request, response, next) => {
@@ -68,6 +68,10 @@ const getOne = <TRawDocType>(
 
 const getAll = <TRawDocType>(
   Model: Model<TRawDocType, {}, {}>,
+  beforeQueryBegin: (
+    request: Request,
+    query: Query<any, any>
+  ) => Query<any, any> = (request, query) => query,
   onQueryComplete: (request: Request, document: any[]) => void = () => {}
 ) =>
   catchAsync(
@@ -79,7 +83,7 @@ const getAll = <TRawDocType>(
         .sort()
         .limitFields()
         .paginate();
-
+      query = beforeQueryBegin(request, query);
       const document = await features.query;
       onQueryComplete(request, document);
 

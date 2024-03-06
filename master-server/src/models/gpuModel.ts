@@ -7,28 +7,38 @@ export interface IGpu {
   lastHeartBeatAt?: Date;
 }
 
-export interface IGpuMethods { }
+export interface IGpuMethods {}
 
 export type GpuModel = Model<IGpu, {}, IGpuMethods>;
 
 export type GpuSchema = Schema<IGpu, GpuModel, IGpuMethods>;
 
-const gpuSchema: GpuSchema = new Schema({
-  host: {
-    type: String,
-    required: [true, "Please provide your host"],
-  },
-  port: {
-    type: Number,
-    required: [true, "Please provide your port"],
-  },
-  privilegedUsers: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "User",
+const gpuSchema: GpuSchema = new Schema(
+  {
+    host: {
+      type: String,
+      required: [true, "Please provide your host"],
     },
-  ],
-  lastHeartBeatAt: Date,
+    port: {
+      type: Number,
+      required: [true, "Please provide your port"],
+    },
+    privilegedUsers: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    lastHeartBeatAt: Date,
+  },
+  {
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
+);
+
+gpuSchema.virtual("activated").get(function (this: IGpu) {
+  return Math.random() < 0.7;
 });
 
 gpuSchema.pre(/^find/, function (this: Query<{}, {}>, next) {
