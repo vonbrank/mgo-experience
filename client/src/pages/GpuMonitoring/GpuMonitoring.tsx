@@ -3,6 +3,7 @@ import {
   Card,
   CardHeader,
   Chip,
+  Collapse,
   Divider,
   IconButton,
   Stack,
@@ -22,6 +23,8 @@ import { useEffect, useState } from "react";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { MonitoringBlockContainer } from "../../components/Container";
 import ReactApexChart from "react-apexcharts";
+import { useFetchUserGpuState } from "../../features/gpu";
+import { TransitionGroup } from "react-transition-group";
 
 interface GpuInfo {
   id: string;
@@ -31,90 +34,43 @@ interface GpuInfo {
   gpuModel: string;
 }
 
-const activedGpuInfoList: GpuInfo[] = [
-  {
-    id: "1",
-    name: "HIT HPC - 001",
-    host: "127.0.0.1",
-    port: 5100,
-    gpuModel: "RTX 3080 Ti",
-  },
-  {
-    id: "2",
-    name: "HIT HPC - 002",
-    host: "127.0.0.1",
-    port: 5200,
-    gpuModel: "RTX 2080 Ti",
-  },
-  {
-    id: "3",
-    name: "HIT HPC - 003",
-    host: "127.0.0.1",
-    port: 5300,
-    gpuModel: "NVIDIA A100",
-  },
-  {
-    id: "13",
-    name: "HIT HPC - 003",
-    host: "127.0.0.1",
-    port: 5300,
-    gpuModel: "NVIDIA A100",
-  },
-  {
-    id: "23",
-    name: "HIT HPC - 003",
-    host: "127.0.0.1",
-    port: 5300,
-    gpuModel: "NVIDIA A100",
-  },
-  {
-    id: "33",
-    name: "HIT HPC - 003",
-    host: "127.0.0.1",
-    port: 5300,
-    gpuModel: "NVIDIA A100",
-  },
-];
+const getFakeGpuNameAndModelFromID = (id: string) => {
+  const idEnd = id.substring(id.length - 3);
+  const indexHex = parseInt(idEnd, 16);
+  const gpuModels = [
+    "RTX 3080 Ti",
+    "RTX 2080 Ti",
+    "NVIDIA A100",
+    "RTX 3080 Ti",
+    "RTX 2080 Ti",
+    "NVIDIA A100",
+  ];
 
-const deactivedGpuInfoList: GpuInfo[] = [
-  {
-    id: "4",
-    name: "HIT HPC - 001",
-    host: "127.0.0.1",
-    port: 5100,
-    gpuModel: "RTX 3080 Ti",
-  },
-  {
-    id: "5",
-    name: "HIT HPC - 002",
-    host: "127.0.0.1",
-    port: 5200,
-    gpuModel: "RTX 2080 Ti",
-  },
-  {
-    id: "6",
-    name: "HIT HPC - 003",
-    host: "127.0.0.1",
-    port: 5300,
-    gpuModel: "NVIDIA A100",
-  },
-  {
-    id: "7",
-    name: "HIT HPC - 003",
-    host: "127.0.0.1",
-    port: 5300,
-    gpuModel: "NVIDIA A100",
-  },
-  {
-    id: "8",
-    name: "HIT HPC - 003",
-    host: "127.0.0.1",
-    port: 5300,
-    gpuModel: "NVIDIA A100",
-  },
-];
+  return {
+    name: `HIT HPC - ${indexHex}`,
+    gpuModel: gpuModels[indexHex % gpuModels.length],
+  };
+};
 
 const GpuMonitoring = () => {
+  const [
+    fetchUserGpuStateResult,
+    fetchUserGpuStateLoading,
+    fetchUserGpuStateError,
+    fetchUserGpuState,
+  ] = useFetchUserGpuState();
+
+  const navigate = useNavigate();
+  let { gpuId } = useParams();
+
+  useEffect(() => {
+    const gpuItem = fetchUserGpuStateResult.find((item) => item.id === gpuId);
+
+    if (gpuItem && !gpuItem.activated) {
+      navigate("/monitoring-gpus");
+    }
+  }, [navigate, fetchUserGpuStateResult, gpuId]);
+
   return (
     <Stack direction={"row"} height={"100vh"}>
       <Box
@@ -127,80 +83,111 @@ const GpuMonitoring = () => {
             Active GPU Servers
           </Typography>
           <List disablePadding>
-            {activedGpuInfoList.map((gpuInfo) => (
-              <ListItem disablePadding key={gpuInfo.id}>
-                <ListItemButton
-                  component={NavLink}
-                  to={gpuInfo.id}
-                  sx={{
-                    "&.active": {
-                      backgroundColor: (theme) => theme.palette.primary.main,
-                      "& .MuiTypography-root.label-primary": {
-                        color: grey[50],
-                      },
-                      "& .MuiTypography-root.label-secondary": {
-                        color: grey[500],
-                      },
-                      "& .MuiChip-root": {
-                        backgroundColor: alpha(grey[50], 0.08),
-                        "& .MuiChip-label": {
-                          color: grey[50],
-                        },
-                      },
-                    },
-                  }}
-                >
-                  <Stack
-                    direction={"row"}
-                    width={"100%"}
-                    padding={"1.2rem"}
-                    justifyContent="space-between"
-                  >
-                    <Stack>
-                      <Typography fontWeight={"bold"} className="label-primary">
-                        {gpuInfo.name}
-                      </Typography>
-                      <Typography className="label-secondary">
-                        {`${gpuInfo.host}:${gpuInfo.port}`}
-                      </Typography>
-                    </Stack>
-                    <Stack direction="column-reverse">
-                      <Chip label={gpuInfo.gpuModel} size="small" />
-                    </Stack>
-                  </Stack>
-                </ListItemButton>
-              </ListItem>
-            ))}
+            <TransitionGroup>
+              {fetchUserGpuStateResult
+                .filter((item) => item.activated)
+                .map((gpuInfo) => (
+                  <Collapse key={gpuInfo.id}>
+                    <ListItem disablePadding key={gpuInfo.id}>
+                      <ListItemButton
+                        component={NavLink}
+                        to={gpuInfo.id}
+                        sx={{
+                          "&.active": {
+                            backgroundColor: (theme) =>
+                              theme.palette.primary.main,
+                            "& .MuiTypography-root.label-primary": {
+                              color: grey[50],
+                            },
+                            "& .MuiTypography-root.label-secondary": {
+                              color: grey[500],
+                            },
+                            "& .MuiChip-root": {
+                              backgroundColor: alpha(grey[50], 0.08),
+                              "& .MuiChip-label": {
+                                color: grey[50],
+                              },
+                            },
+                          },
+                        }}
+                      >
+                        <Stack
+                          direction={"row"}
+                          width={"100%"}
+                          padding={"1.2rem"}
+                          justifyContent="space-between"
+                        >
+                          <Stack>
+                            <Typography
+                              fontWeight={"bold"}
+                              className="label-primary"
+                            >
+                              {getFakeGpuNameAndModelFromID(gpuInfo.id).name}
+                            </Typography>
+                            <Typography className="label-secondary">
+                              {`${gpuInfo.host}:${gpuInfo.port}`}
+                            </Typography>
+                          </Stack>
+                          <Stack direction="column-reverse">
+                            <Chip
+                              label={
+                                getFakeGpuNameAndModelFromID(gpuInfo.id)
+                                  .gpuModel
+                              }
+                              size="small"
+                            />
+                          </Stack>
+                        </Stack>
+                      </ListItemButton>
+                    </ListItem>
+                  </Collapse>
+                ))}
+            </TransitionGroup>
           </List>
           <Divider />
           <Typography padding={"1.6rem 3rem"} variant="h6">
             Deactive GPU Servers
           </Typography>
           <List disablePadding>
-            {deactivedGpuInfoList.map((gpuInfo) => (
-              <ListItem disablePadding key={gpuInfo.id}>
-                <ListItemButton disableRipple>
-                  <Stack
-                    direction={"row"}
-                    width={"100%"}
-                    padding={"1.2rem"}
-                    justifyContent="space-between"
-                  >
-                    <Stack>
-                      <Typography fontWeight={"bold"} className="label-primary">
-                        {gpuInfo.name}
-                      </Typography>
-                      <Typography className="label-secondary">
-                        {`${gpuInfo.host}:${gpuInfo.port}`}
-                      </Typography>
-                    </Stack>
-                    <Stack direction="column-reverse">
-                      <Chip label={gpuInfo.gpuModel} size="small" />
-                    </Stack>
-                  </Stack>
-                </ListItemButton>
-              </ListItem>
-            ))}
+            <TransitionGroup>
+              {fetchUserGpuStateResult
+                .filter((item) => !item.activated)
+                .map((gpuInfo) => (
+                  <Collapse key={gpuInfo.id}>
+                    <ListItem disablePadding key={gpuInfo.id}>
+                      <ListItemButton disableRipple>
+                        <Stack
+                          direction={"row"}
+                          width={"100%"}
+                          padding={"1.2rem"}
+                          justifyContent="space-between"
+                        >
+                          <Stack>
+                            <Typography
+                              fontWeight={"bold"}
+                              className="label-primary"
+                            >
+                              {getFakeGpuNameAndModelFromID(gpuInfo.id).name}
+                            </Typography>
+                            <Typography className="label-secondary">
+                              {`${gpuInfo.host}:${gpuInfo.port}`}
+                            </Typography>
+                          </Stack>
+                          <Stack justifyContent={"flex-end"}>
+                            <Chip
+                              label={
+                                getFakeGpuNameAndModelFromID(gpuInfo.id)
+                                  .gpuModel
+                              }
+                              size="small"
+                            />
+                          </Stack>
+                        </Stack>
+                      </ListItemButton>
+                    </ListItem>
+                  </Collapse>
+                ))}
+            </TransitionGroup>
           </List>
         </SecondaryLevelSidebarThemeProvider>
       </Box>

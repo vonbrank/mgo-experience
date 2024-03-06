@@ -1,4 +1,5 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { LOCAL_STORAGE_JWT_KEY } from "./authAPI";
 
 export interface UserBase {
   id: string;
@@ -22,9 +23,13 @@ const authSlice = createSlice({
       const user = action.payload;
       state.user = { ...user };
     },
+    logout: (state) => {
+      localStorage.removeItem(LOCAL_STORAGE_JWT_KEY);
+      state.user = null;
+    },
   },
 });
 
-export const { login } = authSlice.actions;
+export const { login, logout } = authSlice.actions;
 
 export const authReducer = authSlice.reducer;

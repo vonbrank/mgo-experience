@@ -1,5 +1,5 @@
 import { Badge, Stack, StackProps, Typography } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import Drawer from "@mui/material/Drawer";
 import Box from "@mui/material/Box";
@@ -12,7 +12,7 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import Zoom from "@mui/material/Zoom";
 import Fab from "@mui/material/Fab";
 import Menu from "@mui/icons-material/Menu";
@@ -26,7 +26,8 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { SidebarThemeProvider } from "../../theme";
 import { userUserData } from "../../features/auth/authAPI";
-import { useAppSelector } from "../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { logout } from "../../features/auth";
 
 const drawerWidth = "30rem";
 
@@ -105,8 +106,21 @@ export const AppDefaultLayout = () => {
   const { userData } = useAppSelector((state) => ({
     userData: state.auth.user,
   }));
+  const appDisptach = useAppDispatch();
 
   const [, , , ,] = userUserData();
+
+  const navigate = useNavigate();
+
+  const handleUserItemClicked = () => {
+    appDisptach(logout());
+  };
+
+  useEffect(() => {
+    if (userData === null) {
+      navigate("/login");
+    }
+  }, [userData]);
 
   return (
     <Stack direction={"row"} sx={{ position: "relative" }}>
@@ -220,7 +234,7 @@ export const AppDefaultLayout = () => {
               <Divider />
               <List>
                 <ListItem disablePadding>
-                  <ListItemButton component={NavLink} to={"/login"}>
+                  <ListItemButton onClick={handleUserItemClicked}>
                     <ListItemIcon>
                       <AccountCircleIcon />
                     </ListItemIcon>
