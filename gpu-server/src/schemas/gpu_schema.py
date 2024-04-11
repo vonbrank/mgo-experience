@@ -131,3 +131,6 @@ class GpuMeasurementDataBase(BaseModel):
             frequency_upper_limit=FrequencyData.random(),
             frequency_lower_limit=FrequencyData.random(),
         )
+
+class GpuInfo(BaseModel):
+    _id: str

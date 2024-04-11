@@ -1,2 +1,3 @@
 import schemas.setting_schema
 import schemas.gpu_schema
+import schemas.master_server_schema

@@ -39,6 +39,7 @@ async def handle_update_gpu_state(
                         json_message.data
                     )
                     gpu_measurement_date = new_gpu_measurement_date
+                    print(f"[GPU monitoring server]: GPU measurement data updated.")
                 except ValidationError as e:
                     print(e)
 

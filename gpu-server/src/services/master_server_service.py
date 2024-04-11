@@ -2,9 +2,9 @@ import os
 import httpx
 import asyncio
 from sqlalchemy.orm import Session
-from services import setting_service
+from services import setting_service, auth_service
 from models import Setting
-from schemas import setting_schema
+from schemas import setting_schema, master_server_schema
 from database import get_db
 from contextlib import contextmanager
 
@@ -40,11 +40,12 @@ async def register_self(db: Session):
     async with httpx.AsyncClient() as client:
         response = await client.post(url=url, json=data)
         if response.status_code == 201:
-            result = response.json()
-            data = result["data"]
+            data = master_server_schema.StartupResponse(**response.json())
+            
             setting_service.create_setting(
-                db, setting_schema.SettingCreate(key="gpu-id", value=data["_id"])
+                db, setting_schema.SettingCreate(key="gpu-id", value=data.gpu._id)
             )
+            auth_service.savePublickKey(data.publicKey)
 
 
 async def start_up_connection(gpu_id: str):
@@ -57,8 +58,9 @@ async def start_up_connection(gpu_id: str):
     async with httpx.AsyncClient() as client:
         response = await client.post(url=url, json=data)
         if response.status_code == 200:
-            result = response.json()
-            # print(f"start up result: {result}")
+            data = master_server_schema.StartupResponse(**response.json())
+            
+            auth_service.savePublickKey(data.publicKey)
 
 
 async def heart_beat():
