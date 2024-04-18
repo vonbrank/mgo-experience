@@ -10,16 +10,18 @@ host = "127.0.0.1"
 gpu_monitoring_port = int(os.environ.get("GPU_MONITORING_PORT"))
 
 
-async def fetch() -> Request:
+async def fetch(
+    url: str, payload: dict | None, method: str = "GET", version: str = "0.1"
+) -> Request:
     reader, writer = await asyncio.open_connection(host, gpu_monitoring_port)
 
     jstp_message = Request(
-        header=RequestHeader(method="GET", url="helloworld", version="0.1"),
-        payload={"data": "Hello world."},
+        header=RequestHeader(method=method, url=url, version=version),
+        payload=payload,
     )
     json_string = jstp_message.model_dump_json()
     tcp_message = f"{len(json_string)}\r\n{json_string}".encode()
-    print(f"tcp message = {tcp_message}")
+    # print(f"tcp message = {tcp_message}")
     writer.write(tcp_message)
     await writer.drain()
 
@@ -32,10 +34,10 @@ async def fetch() -> Request:
             break
     jstp_response_first_line.rstrip("\r\n")
     jstp_response_length = int(jstp_response_first_line)
-    print(f"jstp response length = {jstp_response_length}")
+    # print(f"jstp response length = {jstp_response_length}")
     jstp_response_json_string = await reader.readexactly(jstp_response_length)
     jstp_response_json_string.decode()
-    print(f"jstp response json = {jstp_response_json_string}")
+    # print(f"jstp response json = {jstp_response_json_string}")
     print(f"jstp response = {Response.model_validate_json(jstp_response_json_string)}")
 
     writer.close()
