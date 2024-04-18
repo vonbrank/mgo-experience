@@ -11,8 +11,8 @@ import os
 import json
 from schemas.gpu_schema import GpuMeasurementDataBase
 from schemas.json_protocol_schema import (
-    Message as JsonMessage,
-    Header as JsonMessageHeader,
+    Request as JsonMessage,
+    RequestHeader as JsonMessageHeader,
 )
 
 
