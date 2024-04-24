@@ -1,3 +1,7 @@
+from dotenv import load_dotenv
+
+load_dotenv()
+
 import sys
 import os
 
@@ -6,7 +10,6 @@ sys.path.append(src_path)
 
 import asyncio
 import time
-from dotenv import load_dotenv
 import os
 import json
 from schemas.gpu_schema import GpuMeasurementDataBase
@@ -15,8 +18,6 @@ from schemas.json_protocol_schema import (
     RequestHeader as JsonMessageHeader,
 )
 
-
-load_dotenv()
 
 host = "127.0.0.1"
 gpu_monitoring_port = int(os.environ.get("GPU_MONITORING_PORT"))
