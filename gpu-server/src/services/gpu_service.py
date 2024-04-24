@@ -1,7 +1,7 @@
 import os
 import asyncio
 from schemas.gpu_schema import GpuMeasurementDataBase
-from schemas.json_protocol_schema import Message as JsonMessage
+from schemas.json_protocol_schema import Request as JsonMessage
 from pydantic import ValidationError
 
 host = "127.0.0.1"
