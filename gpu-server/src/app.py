@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from routes import hello_world_router, gpu_router
 from contextlib import asynccontextmanager
 from services.master_server_service import start_master_server_service
-from services.gpu_service import monitor_gpu_state
+from services.gpu_service import start_monitor_gpu_state, stop_monitor_gpu_state
 from database import Base, engine
 import asyncio
 
@@ -12,10 +12,12 @@ import asyncio
 async def lifespan(
     app: FastAPI,
 ):
-    asyncio.create_task(monitor_gpu_state())
+    asyncio.create_task(start_monitor_gpu_state())
     asyncio.create_task(start_master_server_service())
 
     yield
+    
+    await stop_monitor_gpu_state()
 
 
 Base.metadata.create_all(bind=engine)

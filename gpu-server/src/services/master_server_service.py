@@ -10,6 +10,7 @@ from contextlib import contextmanager
 
 master_server_host = os.environ.get("MASTER_SERVER_HOST")
 master_server_port = int(os.environ.get("MASTER_SERVER_PORT"))
+master_server_service_mode = os.environ.get("MASTER_SERVER_SERVICE_MODE")
 
 base_url: str = "/api/v1/gpus"
 
@@ -22,6 +23,9 @@ async def start_master_server_service():
 
 
 async def init_master_server_connection(db: Session):
+
+    if master_server_service_mode == "FAKE_CONNECTION":
+        return
 
     gpuIdSetting: Setting | None = setting_service.get_setting(db, "gpu-id")
 

@@ -4,16 +4,27 @@ import asyncio
 from dotenv import load_dotenv
 import os
 
-load_dotenv()
-
-host = "127.0.0.1"
+gpu_monitoring_host = "127.0.0.1"
 gpu_monitoring_port = int(os.environ.get("GPU_MONITORING_PORT"))
 
 
+async def gpu_monitoring_fetch(
+    url: str, payload: dict | None = None, method: str = "GET", version: str = "0.1"
+) -> Response:
+    return await fetch(
+        gpu_monitoring_host, gpu_monitoring_port, url, payload, method, version
+    )
+
+
 async def fetch(
-    url: str, payload: dict | None, method: str = "GET", version: str = "0.1"
-) -> Request:
-    reader, writer = await asyncio.open_connection(host, gpu_monitoring_port)
+    host: str,
+    port: int,
+    url: str,
+    payload: dict | None = None,
+    method: str = "GET",
+    version: str = "0.1",
+) -> Response:
+    reader, writer = await asyncio.open_connection(host, port)
 
     jstp_message = Request(
         header=RequestHeader(method=method, url=url, version=version),
@@ -38,8 +49,9 @@ async def fetch(
     jstp_response_json_string = await reader.readexactly(jstp_response_length)
     jstp_response_json_string.decode()
     # print(f"jstp response json = {jstp_response_json_string}")
-    print(f"jstp response = {Response.model_validate_json(jstp_response_json_string)}")
+    response = Response.model_validate_json(jstp_response_json_string)
+    # print(f"jstp response = {response}")
 
     writer.close()
 
-    return None
+    return response
