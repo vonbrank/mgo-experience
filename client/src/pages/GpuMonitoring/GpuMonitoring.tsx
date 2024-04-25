@@ -23,8 +23,14 @@ import { useEffect, useState } from "react";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { MonitoringBlockContainer } from "../../components/Container";
 import ReactApexChart from "react-apexcharts";
-import { useFetchUserGpuState } from "../../features/gpu";
+import {
+  FetchUserGpuStateResultItem,
+  useFetchGpuStats,
+  useFetchUserGpuState,
+} from "../../features/gpu/gpuAPI";
 import { TransitionGroup } from "react-transition-group";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { GpuModel, startMonitoringGpu } from "../../features/gpu";
 
 interface GpuInfo {
   id: string;
@@ -53,12 +59,17 @@ const getFakeGpuNameAndModelFromID = (id: string) => {
 };
 
 const GpuMonitoring = () => {
+  const { currentMonitoringGpu } = useAppSelector((state) => ({
+    currentMonitoringGpu: state.gpu.currentMonitoringGpu,
+  }));
+  const dispatch = useAppDispatch();
+
   const [
     fetchUserGpuStateResult,
     fetchUserGpuStateLoading,
     fetchUserGpuStateError,
     fetchUserGpuState,
-  ] = useFetchUserGpuState();
+  ] = useFetchUserGpuState(3);
 
   const navigate = useNavigate();
   let { gpuId } = useParams();
@@ -70,6 +81,16 @@ const GpuMonitoring = () => {
       navigate("/monitoring-gpus");
     }
   }, [navigate, fetchUserGpuStateResult, gpuId]);
+
+  const handleItemClicked = (gpuInfo: FetchUserGpuStateResultItem) => {
+    if (currentMonitoringGpu) {
+      if (currentMonitoringGpu.id == gpuInfo.id) {
+        dispatch(startMonitoringGpu(null));
+      }
+    } else {
+      dispatch(startMonitoringGpu(gpuInfo));
+    }
+  };
 
   return (
     <Stack direction={"row"} height={"100vh"}>
@@ -90,6 +111,7 @@ const GpuMonitoring = () => {
                   <Collapse key={gpuInfo.id}>
                     <ListItem disablePadding key={gpuInfo.id}>
                       <ListItemButton
+                        onClick={() => handleItemClicked(gpuInfo)}
                         component={NavLink}
                         to={gpuInfo.id}
                         sx={{
@@ -201,10 +223,12 @@ const GpuMonitoring = () => {
 export default GpuMonitoring;
 
 export const GpuDetailPanel = () => {
-  let { gpuId } = useParams();
+  const { currentMonitoringGpu } = useAppSelector((state) => ({
+    currentMonitoringGpu: state.gpu.currentMonitoringGpu,
+  }));
 
-  if (gpuId) {
-    return <GpuDetail gpuId={gpuId} />;
+  if (currentMonitoringGpu) {
+    return <GpuDetail gpuModel={currentMonitoringGpu} />;
   }
 
   return <GpuDetailEmpty />;
@@ -221,7 +245,7 @@ export const GpuDetailEmpty = () => {
 };
 
 interface GpuDetailProps {
-  gpuId: string;
+  gpuModel: GpuModel;
 }
 
 const ALL_GPU_DETAIL_TAB_TYPES = [
@@ -253,7 +277,7 @@ const gpuDetailTabTypeToString = (type: GpuDetailTabType) => {
 };
 
 export const GpuDetail = (props: GpuDetailProps) => {
-  const { gpuId } = props;
+  const { gpuModel } = props;
 
   const [currentTab, setCurrentTab] = useState<GpuDetailTabType>("overview");
 
@@ -289,7 +313,7 @@ export const GpuDetail = (props: GpuDetailProps) => {
         setCurrentTab(monitoringType as GpuDetailTabType);
       }
     }
-  }, [monitoringType, gpuId]);
+  }, [monitoringType, gpuModel]);
 
   return (
     <SecondaryLevelSidebarThemeProvider>
@@ -314,7 +338,9 @@ export const GpuDetail = (props: GpuDetailProps) => {
         </Stack>
         <Divider flexItem />
         <Box sx={{ flex: 1, overflowY: "scroll" }}>
-          {currentTab === "overview" && <GpuMonitoringOverview />}
+          {currentTab === "overview" && (
+            <GpuMonitoringOverview gpuModel={gpuModel} />
+          )}
         </Box>
       </Stack>
     </SecondaryLevelSidebarThemeProvider>
@@ -356,38 +382,37 @@ function generateSmoothCPULoadValues() {
   return values;
 }
 
-export const GpuMonitoringOverview = () => {
+interface GpuMonitoringOverviewProps {
+  gpuModel: GpuModel;
+}
+
+export const GpuMonitoringOverview = (props: GpuMonitoringOverviewProps) => {
+  const { gpuModel } = props;
+
   const theme = useTheme();
 
-  const [cpuUsageData, setCpuUsageDate] = useState(
-    generateSmoothCPULoadValues()
+  const [data, loading, error, fetch] = useFetchGpuStats(
+    gpuModel.host,
+    gpuModel.port,
+    undefined,
+    undefined
   );
 
-  const handleUpdateData = () => {
-    setCpuUsageDate((current) => {
-      const maxCPULoad = 100;
-      const newData = [...current];
-      const lastItem = newData[newData.length - 1];
-      // const amplitude = Math.round(Math.random() * 10);
-      // const nextLoad =
-      //   lastItem[1] + Math.floor(Math.random() * amplitude) - amplitude / 2;
-      const newLoad = Math.floor(Math.random() * (maxCPULoad + 1));
-      const newItem: [number, number] = [lastItem[0] + 1000, newLoad];
-      newData.shift();
-      newData.push(newItem);
-      return newData;
-    });
-  };
+  // const [cpuUsageData, setCpuUsageData] = useState<[number, number][]>([]);
 
-  useEffect(() => {
-    const intervalHandler = setInterval(() => {
-      handleUpdateData();
-    }, 1000);
-
-    return () => {
-      clearInterval(intervalHandler);
-    };
-  }, []);
+  // useEffect(() => {
+  //   setCpuUsageData((current) => {
+  //     const newData: [number, number][] = [
+  //       ...current,
+  //       [new Date().getTime(), data ? data.energy_data.cpu_whole : 0],
+  //     ];
+  //     // if (newData.length > 10) {
+  //     //   var elementsToRemove = newData.length - 10;
+  //     //   newData.splice(0, elementsToRemove);
+  //     // }
+  //     return newData;
+  //   });
+  // }, [data]);
 
   return (
     <Stack>
@@ -471,7 +496,10 @@ export const GpuMonitoringOverview = () => {
                 series={[
                   {
                     name: "CPU Usage",
-                    data: cpuUsageData,
+                    data: data.map((item) => [
+                      item.time,
+                      item.data.power_data.cpu_whole,
+                    ]),
                   },
                 ]}
                 type="area"
@@ -516,8 +544,11 @@ export const GpuMonitoringOverview = () => {
                 }}
                 series={[
                   {
-                    name: "CPU Usage",
-                    data: cpuUsageData,
+                    name: "RAM Usage",
+                    data: data.map((item) => [
+                      item.time,
+                      item.data.usage_data.cpu_memory,
+                    ]),
                   },
                 ]}
                 type="area"
@@ -564,8 +595,11 @@ export const GpuMonitoringOverview = () => {
               }}
               series={[
                 {
-                  name: "CPU Usage",
-                  data: cpuUsageData,
+                  name: "GPU Core Usage",
+                  data: data.map((item) => [
+                    item.time,
+                    item.data.usage_data.gpu_core,
+                  ]),
                 },
               ]}
               type="area"

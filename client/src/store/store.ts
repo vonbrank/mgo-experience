@@ -1,9 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { authReducer } from "../features/auth";
+import { gpuReducer } from "../features/gpu";
 
 const store = configureStore({
   reducer: {
     auth: authReducer,
+    gpu: gpuReducer,
   },
 });
 

@@ -1,1 +1,1 @@
-export * from "./gpuAPI";
+export * from "./gpuSlice";
