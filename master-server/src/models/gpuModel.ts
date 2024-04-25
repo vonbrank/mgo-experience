@@ -38,7 +38,13 @@ const gpuSchema: GpuSchema = new Schema(
 );
 
 gpuSchema.virtual("activated").get(function (this: IGpu) {
-  return Math.random() < 0.7;
+  if (this.lastHeartBeatAt) {
+    const currentDate = new Date();
+    const timeDiff =
+      (currentDate.getTime() - this.lastHeartBeatAt.getTime()) / 1000;
+    return timeDiff < 30;
+  }
+  return false;
 });
 
 gpuSchema.pre(/^find/, function (this: Query<{}, {}>, next) {
