@@ -101,6 +101,7 @@ const Login = () => {
                           size="small"
                           autoComplete="off"
                           fullWidth
+                          type="password"
                         />
                       </Stack>
                     </Stack>
