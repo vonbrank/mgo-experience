@@ -119,6 +119,8 @@ class GpuMeasurementDataBase(BaseModel):
     frequency_data: FrequencyData
     frequency_upper_limit: FrequencyData
     frequency_lower_limit: FrequencyData
+    usage_data: UsageData
+    
 
     @staticmethod
     def random():
@@ -130,6 +132,7 @@ class GpuMeasurementDataBase(BaseModel):
             frequency_data=FrequencyData.random(),
             frequency_upper_limit=FrequencyData.random(),
             frequency_lower_limit=FrequencyData.random(),
+            usage_data=UsageData.random(),
         )
 
 class GpuInfo(BaseModel):
