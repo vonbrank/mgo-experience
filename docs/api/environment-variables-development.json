@@ -1,0 +1,36 @@
+{
+  "v": 1,
+  "id": "clvky4gpw0057pisca6mdx4en",
+  "name": "Development",
+  "variables": [
+    {
+      "key": "MASTER_HOST",
+      "value": "localhost",
+      "secret": false
+    },
+    {
+      "key": "MASTER_PORT",
+      "value": "5000",
+      "secret": false
+    },
+    {
+      "key": "BASE_URL",
+      "value": "/api/v1",
+      "secret": false
+    },
+    {
+      "key": "jwt",
+      "secret": true
+    },
+    {
+      "key": "GPU_HOST",
+      "value": "localhost",
+      "secret": false
+    },
+    {
+      "key": "GPU_PORT",
+      "value": "5100",
+      "secret": false
+    }
+  ]
+}
