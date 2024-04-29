@@ -12,7 +12,8 @@ interface UserLoginData {
 interface UserBaseModel {
   _id: string;
   email: string;
-  username: string;
+  name: string;
+  role: string;
 }
 
 interface UserLoginResponse {
@@ -38,12 +39,6 @@ export const useUserLogin: () => [
 
   const { showTemporaryText } = useToast();
 
-  const fakeUser: UserBase = {
-    id: "",
-    email: "",
-    username: "",
-  };
-
   const login = useCallback(
     async (data: UserLoginData) => {
       setLoginError(null);
@@ -66,6 +61,7 @@ export const useUserLogin: () => [
           appDispatch(
             loginAction({
               ...userData,
+              username: userData.name,
               id: userData._id,
             })
           );
@@ -97,7 +93,7 @@ interface UserFetchMeDataResponse {
   data: UserBaseModel;
 }
 
-export const userUserData: () => [
+export const useUserData: () => [
   UserBaseModel | null,
   boolean,
   Error | null,
@@ -133,12 +129,13 @@ export const userUserData: () => [
         appDispatch(
           loginAction({
             ...userData,
+            username: userData.name,
             id: userData._id,
           })
         );
         setUserFetchMeResponseData(userData);
       } else {
-        setFetchError(new Error("Login Failed."));
+        setFetchError(new Error("Failed to get user data"));
       }
     } catch (e) {
       if (e instanceof Error) {
@@ -152,7 +149,66 @@ export const userUserData: () => [
 
   useEffect(() => {
     fetch();
-  }, []);
+  }, [fetch]);
 
   return [userFetchMeResponseData, loading, fetchError, fetch];
+};
+
+interface FetchAllUserDataResponse {
+  status: string;
+  results: number;
+  data: UserBaseModel[];
+}
+
+export const useAllUserData: () => [
+  UserBaseModel[],
+  boolean,
+  Error | null,
+  fetch: () => Promise<void>
+] = () => {
+  const appDispatch = useAppDispatch();
+
+  const [loading, setLoading] = useState(false);
+  const [fetchError, setFetchError] = useState<Error | null>(null);
+  const [allUserData, setAllUserData] = useState<UserBaseModel[]>([]);
+
+  const fetch = useCallback(async () => {
+    setFetchError(null);
+    setAllUserData([]);
+
+    setLoading(true);
+
+    const token = localStorage.getItem(LOCAL_STORAGE_JWT_KEY);
+    try {
+      const res = await masterServerAxios.get<FetchAllUserDataResponse>(
+        "/users/",
+        {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : "",
+          },
+        }
+      );
+
+      if (res.status === 200) {
+        const { data } = res;
+        const userData = data.data;
+        setAllUserData(userData);
+      } else {
+        setFetchError(new Error("Failed to get all users data."));
+      }
+    } catch (e) {
+      if (e instanceof Error) {
+        setFetchError(e);
+      } else {
+        setFetchError(new Error(`${e}`));
+      }
+    }
+    setLoading(false);
+  }, [setLoading, setFetchError, setAllUserData, appDispatch]);
+
+  useEffect(() => {
+    fetch();
+  }, [fetch]);
+
+  return [allUserData, loading, fetchError, fetch];
 };

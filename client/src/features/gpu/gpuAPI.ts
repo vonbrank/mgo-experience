@@ -3,6 +3,7 @@ import { useAppSelector } from "../../store/hooks";
 import { masterServerAxios } from "../../utils/axios";
 import { LOCAL_STORAGE_JWT_KEY } from "../auth/authAPI";
 import axios from "axios";
+import { GpuModel } from ".";
 
 export interface FetchUserGpuStateResultItem {
   id: string;
@@ -10,6 +11,7 @@ export interface FetchUserGpuStateResultItem {
   port: string;
   lastHeartBeatAt: string;
   activated: boolean;
+  privilegedUsers: { _id: string }[];
 }
 
 type FetchUserGpuStateResult = FetchUserGpuStateResultItem[];
@@ -57,7 +59,7 @@ export const useFetchUserGpuState: (
         const { data } = res;
         const resultData = data.data;
 
-        if (Boolean(import.meta.env.VITE_USE_TEST_GPU_INFO)) {
+        if (import.meta.env.VITE_USE_TEST_GPU_INFO === "true") {
           setResult([
             {
               id: "1234",
@@ -65,6 +67,7 @@ export const useFetchUserGpuState: (
               port: import.meta.env.VITE_TEST_GPU_SERVER_PORT,
               lastHeartBeatAt: `${new Date()}`,
               activated: true,
+              privilegedUsers: [],
             },
             ...resultData,
           ]);
@@ -97,7 +100,7 @@ export const useFetchUserGpuState: (
     return () => {
       clearInterval(timerHandler);
     };
-  }, []);
+  }, [fetch]);
 
   return [result, loading, error, fetch];
 };
@@ -210,7 +213,79 @@ export const useFetchGpuStats: (
     return () => {
       clearInterval(timerHandler);
     };
-  }, []);
+  }, [fetch]);
+
+  return [data, loading, error, fetch];
+};
+
+interface FetchAuthUserGpuResult {
+  granted: GpuModel[];
+  denied: GpuModel[];
+}
+
+export const useFetchAuthUserGpu: (
+  userId: string
+) => [FetchAuthUserGpuResult, boolean, Error | null, () => void] = (
+  userId: string
+) => {
+  const [data, setData] = useState<FetchAuthUserGpuResult>({
+    granted: [],
+    denied: [],
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetch = useCallback(async () => {
+    setLoading(true);
+
+    setError(null);
+    const token = localStorage.getItem(LOCAL_STORAGE_JWT_KEY);
+    try {
+      const res = await masterServerAxios.get<FetchUserGpuStateResponse>(
+        "/users/gpus",
+        {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : "",
+          },
+        }
+      );
+
+      if (res.status === 200) {
+        const { data } = res;
+        const resultData = data.data;
+        setData({
+          granted: resultData.filter(
+            (item) =>
+              item.privilegedUsers.findIndex(
+                (privilegedUser) => privilegedUser._id === userId
+              ) !== -1
+          ),
+          denied: resultData.filter(
+            (item) =>
+              item.privilegedUsers.findIndex(
+                (privilegedUser) => privilegedUser._id === userId
+              ) === -1
+          ),
+        });
+      } else {
+        setData({ granted: [], denied: [] });
+        setError(new Error("Fetch user auth gpus failed"));
+      }
+    } catch (e) {
+      if (e instanceof Error) {
+        setError(e);
+      } else {
+        setError(new Error(`${e}`));
+      }
+      setData({ granted: [], denied: [] });
+    }
+
+    setLoading(false);
+  }, [setData, setLoading, setError]);
+
+  useEffect(() => {
+    fetch();
+  }, [fetch]);
 
   return [data, loading, error, fetch];
 };
