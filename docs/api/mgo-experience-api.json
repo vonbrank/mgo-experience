@@ -1,250 +1,10 @@
 [
     {
+        "v": 2,
         "name": "Master Server",
         "folders": [
             {
-                "name": "GPU",
-                "folders": [],
-                "requests": [
-                    {
-                        "v": "4",
-                        "auth": {
-                            "authType": "inherit",
-                            "authActive": true
-                        },
-                        "body": {
-                            "body": null,
-                            "contentType": null
-                        },
-                        "name": "Register GPU",
-                        "method": "POST",
-                        "params": [],
-                        "headers": [],
-                        "endpoint": "http://<<GPU_HOST>>:<<MASTER_PORT>><<BASE_URL>>/gpus/register",
-                        "testScript": "",
-                        "preRequestScript": "",
-                        "requestVariables": []
-                    },
-                    {
-                        "v": "4",
-                        "auth": {
-                            "authType": "inherit",
-                            "authActive": true
-                        },
-                        "body": {
-                            "body": null,
-                            "contentType": null
-                        },
-                        "name": "Start GPU Server",
-                        "method": "POST",
-                        "params": [],
-                        "headers": [],
-                        "endpoint": "http://<<GPU_HOST>>:<<GPU_PORT>><<BASE_URL>>/gpus/startup",
-                        "testScript": "",
-                        "preRequestScript": "",
-                        "requestVariables": []
-                    },
-                    {
-                        "v": "4",
-                        "auth": {
-                            "authType": "inherit",
-                            "authActive": true
-                        },
-                        "body": {
-                            "body": null,
-                            "contentType": null
-                        },
-                        "name": "Stop GPU Server",
-                        "method": "POST",
-                        "params": [],
-                        "headers": [],
-                        "endpoint": "http://<<GPU_HOST>>:<<GPU_PORT>><<BASE_URL>>/gpus/shutdown",
-                        "testScript": "",
-                        "preRequestScript": "",
-                        "requestVariables": []
-                    },
-                    {
-                        "v": "4",
-                        "auth": {
-                            "authType": "inherit",
-                            "authActive": true
-                        },
-                        "body": {
-                            "body": null,
-                            "contentType": null
-                        },
-                        "name": "Get GPU",
-                        "method": "GET",
-                        "params": [],
-                        "headers": [],
-                        "endpoint": "http://<<GPU_HOST>>:<<GPU_PORT>><<BASE_URL>>/gpus/1",
-                        "testScript": "",
-                        "preRequestScript": "",
-                        "requestVariables": []
-                    },
-                    {
-                        "v": "4",
-                        "auth": {
-                            "authType": "inherit",
-                            "authActive": true
-                        },
-                        "body": {
-                            "body": null,
-                            "contentType": null
-                        },
-                        "name": "GPU Server Heart Beat",
-                        "method": "PUT",
-                        "params": [],
-                        "headers": [],
-                        "endpoint": "http://<<GPU_HOST>>:<<GPU_PORT>><<BASE_URL>>/gpus/heartbeat",
-                        "testScript": "",
-                        "preRequestScript": "",
-                        "requestVariables": []
-                    },
-                    {
-                        "v": "4",
-                        "auth": {
-                            "authType": "inherit",
-                            "authActive": true
-                        },
-                        "body": {
-                            "body": null,
-                            "contentType": null
-                        },
-                        "name": "Get All GPUs",
-                        "method": "GET",
-                        "params": [],
-                        "headers": [],
-                        "endpoint": "http://<<GPU_HOST>>:<<GPU_PORT>><<BASE_URL>>/gpus",
-                        "testScript": "",
-                        "preRequestScript": "",
-                        "requestVariables": []
-                    }
-                ],
-                "data": null
-            },
-            {
-                "name": "Auth",
-                "folders": [],
-                "requests": [
-                    {
-                        "v": "4",
-                        "auth": {
-                            "authType": "inherit",
-                            "authActive": true
-                        },
-                        "body": {
-                            "body": null,
-                            "contentType": null
-                        },
-                        "name": "Forgot Password",
-                        "method": "POST",
-                        "params": [],
-                        "headers": [],
-                        "endpoint": "http://<<MASTER_HOST>>:<<MASTER_PORT>><<BASE_URL>>/users/forgotPassword",
-                        "testScript": "",
-                        "preRequestScript": "",
-                        "requestVariables": []
-                    },
-                    {
-                        "v": "4",
-                        "auth": {
-                            "authType": "inherit",
-                            "authActive": true
-                        },
-                        "body": {
-                            "body": null,
-                            "contentType": null
-                        },
-                        "name": "Reset Password",
-                        "method": "PATCH",
-                        "params": [],
-                        "headers": [],
-                        "endpoint": "http://<<MASTER_HOST>>:<<MASTER_PORT>><<BASE_URL>>/users/resetPassword",
-                        "testScript": "",
-                        "preRequestScript": "",
-                        "requestVariables": []
-                    },
-                    {
-                        "v": "4",
-                        "auth": {
-                            "authType": "inherit",
-                            "authActive": true
-                        },
-                        "body": {
-                            "body": null,
-                            "contentType": null
-                        },
-                        "name": "Delete Me",
-                        "method": "DELETE",
-                        "params": [],
-                        "headers": [],
-                        "endpoint": "http://<<MASTER_HOST>>:<<MASTER_PORT>><<BASE_URL>>/users/deleteMe",
-                        "testScript": "",
-                        "preRequestScript": "",
-                        "requestVariables": []
-                    },
-                    {
-                        "v": "4",
-                        "auth": {
-                            "authType": "inherit",
-                            "authActive": true
-                        },
-                        "body": {
-                            "body": null,
-                            "contentType": null
-                        },
-                        "name": "Sign Up",
-                        "method": "POST",
-                        "params": [],
-                        "headers": [],
-                        "endpoint": "http://<<MASTER_HOST>>:<<MASTER_PORT>><<BASE_URL>>/users/signup",
-                        "testScript": "",
-                        "preRequestScript": "",
-                        "requestVariables": []
-                    },
-                    {
-                        "v": "4",
-                        "auth": {
-                            "authType": "inherit",
-                            "authActive": true
-                        },
-                        "body": {
-                            "body": null,
-                            "contentType": null
-                        },
-                        "name": "Update Me",
-                        "method": "POST",
-                        "params": [],
-                        "headers": [],
-                        "endpoint": "http://<<MASTER_HOST>>:<<MASTER_PORT>><<BASE_URL>>/users/updateMyPassword",
-                        "testScript": "",
-                        "preRequestScript": "",
-                        "requestVariables": []
-                    },
-                    {
-                        "v": "4",
-                        "auth": {
-                            "authType": "inherit",
-                            "authActive": true
-                        },
-                        "body": {
-                            "body": null,
-                            "contentType": null
-                        },
-                        "name": "Get Me",
-                        "method": "GET",
-                        "params": [],
-                        "headers": [],
-                        "endpoint": "http://<<MASTER_HOST>>:<<MASTER_PORT>><<BASE_URL>>/users/me",
-                        "testScript": "",
-                        "preRequestScript": "",
-                        "requestVariables": []
-                    }
-                ],
-                "data": null
-            },
-            {
+                "v": 2,
                 "name": "User",
                 "folders": [],
                 "requests": [
@@ -363,16 +123,301 @@
                         "requestVariables": []
                     }
                 ],
-                "data": null
+                "auth": {
+                    "authType": "inherit",
+                    "authActive": true
+                },
+                "headers": []
+            },
+            {
+                "v": 2,
+                "name": "Auth",
+                "folders": [],
+                "requests": [
+                    {
+                        "v": "4",
+                        "auth": {
+                            "authType": "inherit",
+                            "authActive": true
+                        },
+                        "body": {
+                            "body": null,
+                            "contentType": null
+                        },
+                        "name": "Forgot Password",
+                        "method": "POST",
+                        "params": [],
+                        "headers": [],
+                        "endpoint": "http://<<MASTER_HOST>>:<<MASTER_PORT>><<BASE_URL>>/users/forgotPassword",
+                        "testScript": "",
+                        "preRequestScript": "",
+                        "requestVariables": []
+                    },
+                    {
+                        "v": "4",
+                        "auth": {
+                            "authType": "inherit",
+                            "authActive": true
+                        },
+                        "body": {
+                            "body": null,
+                            "contentType": null
+                        },
+                        "name": "Reset Password",
+                        "method": "PATCH",
+                        "params": [],
+                        "headers": [],
+                        "endpoint": "http://<<MASTER_HOST>>:<<MASTER_PORT>><<BASE_URL>>/users/resetPassword",
+                        "testScript": "",
+                        "preRequestScript": "",
+                        "requestVariables": []
+                    },
+                    {
+                        "v": "4",
+                        "auth": {
+                            "authType": "inherit",
+                            "authActive": true
+                        },
+                        "body": {
+                            "body": null,
+                            "contentType": null
+                        },
+                        "name": "Delete Me",
+                        "method": "DELETE",
+                        "params": [],
+                        "headers": [],
+                        "endpoint": "http://<<MASTER_HOST>>:<<MASTER_PORT>><<BASE_URL>>/users/deleteMe",
+                        "testScript": "",
+                        "preRequestScript": "",
+                        "requestVariables": []
+                    },
+                    {
+                        "v": "4",
+                        "auth": {
+                            "authType": "inherit",
+                            "authActive": true
+                        },
+                        "body": {
+                            "body": null,
+                            "contentType": null
+                        },
+                        "name": "Sign Up",
+                        "method": "POST",
+                        "params": [],
+                        "headers": [],
+                        "endpoint": "http://<<MASTER_HOST>>:<<MASTER_PORT>><<BASE_URL>>/users/signup",
+                        "testScript": "",
+                        "preRequestScript": "",
+                        "requestVariables": []
+                    },
+                    {
+                        "v": "4",
+                        "auth": {
+                            "authType": "inherit",
+                            "authActive": true
+                        },
+                        "body": {
+                            "body": null,
+                            "contentType": null
+                        },
+                        "name": "Update Me",
+                        "method": "POST",
+                        "params": [],
+                        "headers": [],
+                        "endpoint": "http://<<MASTER_HOST>>:<<MASTER_PORT>><<BASE_URL>>/users/updateMyPassword",
+                        "testScript": "",
+                        "preRequestScript": "",
+                        "requestVariables": []
+                    },
+                    {
+                        "v": "4",
+                        "auth": {
+                            "authType": "inherit",
+                            "authActive": true
+                        },
+                        "body": {
+                            "body": null,
+                            "contentType": null
+                        },
+                        "name": "Get Me",
+                        "method": "GET",
+                        "params": [],
+                        "headers": [],
+                        "endpoint": "http://<<MASTER_HOST>>:<<MASTER_PORT>><<BASE_URL>>/users/me",
+                        "testScript": "",
+                        "preRequestScript": "",
+                        "requestVariables": []
+                    }
+                ],
+                "auth": {
+                    "authType": "inherit",
+                    "authActive": true
+                },
+                "headers": []
+            },
+            {
+                "v": 2,
+                "name": "GPU",
+                "folders": [],
+                "requests": [
+                    {
+                        "v": "4",
+                        "auth": {
+                            "authType": "inherit",
+                            "authActive": true
+                        },
+                        "body": {
+                            "body": null,
+                            "contentType": null
+                        },
+                        "name": "Register GPU",
+                        "method": "POST",
+                        "params": [],
+                        "headers": [],
+                        "endpoint": "http://<<MASTER_HOST>>:<<MASTER_PORT>><<BASE_URL>>/gpus/register",
+                        "testScript": "",
+                        "preRequestScript": "",
+                        "requestVariables": []
+                    },
+                    {
+                        "v": "4",
+                        "auth": {
+                            "authType": "inherit",
+                            "authActive": true
+                        },
+                        "body": {
+                            "body": null,
+                            "contentType": null
+                        },
+                        "name": "Start GPU Server",
+                        "method": "POST",
+                        "params": [],
+                        "headers": [],
+                        "endpoint": "http://<<MASTER_HOST>>:<<MASTER_PORT>><<BASE_URL>>/gpus/startup",
+                        "testScript": "",
+                        "preRequestScript": "",
+                        "requestVariables": []
+                    },
+                    {
+                        "v": "4",
+                        "auth": {
+                            "authType": "inherit",
+                            "authActive": true
+                        },
+                        "body": {
+                            "body": null,
+                            "contentType": null
+                        },
+                        "name": "Stop GPU Server",
+                        "method": "POST",
+                        "params": [],
+                        "headers": [],
+                        "endpoint": "http://<<MASTER_HOST>>:<<MASTER_PORT>><<BASE_URL>>/gpus/shutdown",
+                        "testScript": "",
+                        "preRequestScript": "",
+                        "requestVariables": []
+                    },
+                    {
+                        "v": "4",
+                        "auth": {
+                            "authType": "inherit",
+                            "authActive": true
+                        },
+                        "body": {
+                            "body": null,
+                            "contentType": null
+                        },
+                        "name": "Get GPU",
+                        "method": "GET",
+                        "params": [],
+                        "headers": [],
+                        "endpoint": "http://<<MASTER_HOST>>:<<MASTER_PORT>><<BASE_URL>>/gpus/1",
+                        "testScript": "",
+                        "preRequestScript": "",
+                        "requestVariables": []
+                    },
+                    {
+                        "v": "4",
+                        "auth": {
+                            "authType": "inherit",
+                            "authActive": true
+                        },
+                        "body": {
+                            "body": null,
+                            "contentType": null
+                        },
+                        "name": "GPU Server Heart Beat",
+                        "method": "PUT",
+                        "params": [],
+                        "headers": [],
+                        "endpoint": "http://<<MASTER_HOST>>:<<MASTER_PORT>><<BASE_URL>>/gpus/heartbeat",
+                        "testScript": "",
+                        "preRequestScript": "",
+                        "requestVariables": []
+                    },
+                    {
+                        "v": "4",
+                        "auth": {
+                            "authType": "inherit",
+                            "authActive": true
+                        },
+                        "body": {
+                            "body": null,
+                            "contentType": null
+                        },
+                        "name": "Get All GPUs",
+                        "method": "GET",
+                        "params": [],
+                        "headers": [],
+                        "endpoint": "http://<<MASTER_HOST>>:<<MASTER_PORT>><<BASE_URL>>/gpus",
+                        "testScript": "",
+                        "preRequestScript": "",
+                        "requestVariables": []
+                    }
+                ],
+                "auth": {
+                    "authType": "inherit",
+                    "authActive": true
+                },
+                "headers": []
             }
         ],
         "requests": [],
-        "data": null
+        "auth": {
+            "authType": "inherit",
+            "authActive": true
+        },
+        "headers": []
     },
     {
+        "v": 2,
         "name": "GPU Server",
         "folders": [],
-        "requests": [],
-        "data": null
+        "requests": [
+            {
+                "v": "4",
+                "auth": {
+                    "authType": "inherit",
+                    "authActive": true
+                },
+                "body": {
+                    "body": null,
+                    "contentType": null
+                },
+                "name": "Get GPU State",
+                "method": "GET",
+                "params": [],
+                "headers": [],
+                "endpoint": "http://<<GPU_HOST>>:<<GPU_PORT>><<BASE_URL>>/gpus/state",
+                "testScript": "",
+                "preRequestScript": "",
+                "requestVariables": []
+            }
+        ],
+        "auth": {
+            "authType": "inherit",
+            "authActive": true
+        },
+        "headers": []
     }
 ]
