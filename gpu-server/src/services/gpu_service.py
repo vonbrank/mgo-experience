@@ -8,25 +8,52 @@ from services.jstp_client_service import gpu_monitoring_fetch
 host = "127.0.0.1"
 gpu_monitoring_port = int(os.environ.get("GPU_MONITORING_PORT"))
 gpu_monitoring_frequency = int(os.environ.get("GPU_MONITORING_FREQUENCY"))
+gpu_monitoring_mode = os.environ.get("GPU_MONITORING_MODE")
 performance_measurement_output_path = os.environ.get(
     "PERFORMANCE_MEASUREMENT_OUTPUT_PATH"
 )
 
 data = None
 
-gpu_measurement_date: GpuMeasurementDataBase | None = None
+gpu_measurement_data: GpuMeasurementDataBase | None = None
 
 is_monitoring: bool = False
 
 
-def get_gpu_measurement_date():
-    return gpu_measurement_date
+def get_gpu_measurement_data():
+    return gpu_measurement_data
 
 
 async def handle_update_gpu_state() -> None:
+
+    if gpu_monitoring_mode == "NORMAL":
+        await fetch_and_update_gpu_state()
+    elif gpu_monitoring_mode == "FAKE_GPU_STATE":
+        await update_fake_gpu_state()
+
+
+async def fetch_and_update_gpu_state() -> None:
     response = await gpu_monitoring_fetch(url="hardware-stats", method="GET")
     print(f"gpu stats response = {response}")
-    pass
+    if response.header.status == 200:
+        data = response.payload["data"]
+        new_gpu_measurement_data = GpuMeasurementDataBase.random()
+        new_gpu_measurement_data_dict = new_gpu_measurement_data.model_dump()
+        new_gpu_measurement_data_dict["power_data"]["cpu_whole"] = int(data["power_data"]["cpu_whole"])
+        new_gpu_measurement_data_dict["power_data"]["gpu_whole"] = int(data["power_data"]["gpu_whole"])
+        new_gpu_measurement_data_dict["energy_data"]["cpu_whole"] = int(data["energy_data"]["cpu_whole"])
+        new_gpu_measurement_data_dict["energy_data"]["gpu_whole"] = int(data["energy_data"]["gpu_whole"])
+        new_gpu_measurement_data_dict["usage_data"]["cpu_memory"] = int(data["usage_data"]["cpu_memory"] * 100)
+        new_gpu_measurement_data_dict["usage_data"]["gpu_core"] = int(data["usage_data"]["gpu_core"] * 100)
+        global gpu_measurement_data
+        gpu_measurement_data = GpuMeasurementDataBase.model_validate(
+            new_gpu_measurement_data_dict
+        )
+
+
+async def update_fake_gpu_state() -> None:
+    global gpu_measurement_data
+    gpu_measurement_data = GpuMeasurementDataBase.random()
 
 
 async def start_monitor_gpu_state() -> None:
