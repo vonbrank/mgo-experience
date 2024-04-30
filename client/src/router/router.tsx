@@ -7,6 +7,7 @@ import GpuMonitoring from "../pages/GpuMonitoring";
 import { GpuDetailPanel } from "../pages/GpuMonitoring/GpuMonitoring";
 import GpuManagement from "../pages/GpuManagement";
 import { UserGpuManagementPanel } from "../pages/GpuManagement/GpuManagement";
+import UserManagement from "../pages/UserManagement";
 
 const customRouter = createBrowserRouter([
   {
@@ -66,7 +67,7 @@ const customRouter = createBrowserRouter([
           },
           {
             path: "user-management",
-            element: <></>,
+            element: <UserManagement />,
           },
           {
             path: "notification",
