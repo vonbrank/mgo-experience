@@ -24,6 +24,7 @@ import HelpCenterIcon from "@mui/icons-material/HelpCenter";
 import SettingsIcon from "@mui/icons-material/Settings";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import InfoIcon from "@mui/icons-material/Info";
 import { SidebarThemeProvider } from "../../theme";
 import { useUserData } from "../../features/auth/authAPI";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
@@ -100,6 +101,11 @@ export const AppDefaultLayout = () => {
       text: "Help",
       iconElement: <HelpCenterIcon />,
       to: "/help",
+    },
+    {
+      text: "About",
+      iconElement: <InfoIcon />,
+      to: "/about",
     },
   ];
 

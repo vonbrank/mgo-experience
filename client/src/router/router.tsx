@@ -8,6 +8,8 @@ import { GpuDetailPanel } from "../pages/GpuMonitoring/GpuMonitoring";
 import GpuManagement from "../pages/GpuManagement";
 import { UserGpuManagementPanel } from "../pages/GpuManagement/GpuManagement";
 import UserManagement from "../pages/UserManagement";
+import Settings from "../pages/Settings";
+import About from "../pages/About";
 
 const customRouter = createBrowserRouter([
   {
@@ -75,11 +77,15 @@ const customRouter = createBrowserRouter([
           },
           {
             path: "settings",
-            element: <></>,
+            element: <Settings />,
           },
           {
             path: "help",
             element: <></>,
+          },
+          {
+            path: "about",
+            element: <About />,
           },
         ],
       },
