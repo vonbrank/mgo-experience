@@ -1,7 +1,12 @@
 from pydantic import BaseModel, Json
 from schemas.gpu_schema import GpuInfo
 
-class StartupResponse(BaseModel):
+
+class StartupData(BaseModel):
     gpu: GpuInfo
     publicKey: str
-    
+
+
+class StartupResponse(BaseModel):
+    status: str
+    data: StartupData

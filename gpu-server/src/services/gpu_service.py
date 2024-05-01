@@ -78,38 +78,41 @@ async def stop_monitor_gpu_state() -> None:
 async def init_gpu_monitoring() -> None:
 
     print("init gpu monitoring...")
+    
+    if gpu_monitoring_mode == "NORMAL":
+        await asyncio.sleep(1)
 
-    await asyncio.sleep(1)
+        print("Reset")
+        await gpu_monitoring_fetch(
+            url="RESET",
+            method="POST",
+            payload={"description": performance_measurement_output_path},
+        )
 
-    print("Reset")
-    await gpu_monitoring_fetch(
-        url="RESET",
-        method="POST",
-        payload={"description": performance_measurement_output_path},
-    )
+        print(f"Sleep 1s")
+        await asyncio.sleep(1)
 
-    print(f"Sleep 1s")
-    await asyncio.sleep(1)
-
-    print("Start")
-    await gpu_monitoring_fetch(url="START", method="POST")
-    print("Time stamp begin")
-    await gpu_monitoring_fetch(
-        url="TIME_STAMP", method="POST", payload={"description": "BEGIN"}
-    )
+        print("Start")
+        await gpu_monitoring_fetch(url="START", method="POST")
+        print("Time stamp begin")
+        await gpu_monitoring_fetch(
+            url="TIME_STAMP", method="POST", payload={"description": "BEGIN"}
+        )
 
 
 async def exit_gpu_monitoring() -> None:
 
     print("exit gpu monitoring...")
+    
+    if gpu_monitoring_mode == "NORMAL":
 
-    print("Time stamp end")
-    await gpu_monitoring_fetch(
-        url="TIME_STAMP", method="POST", payload={"description": "END"}
-    )
+        print("Time stamp end")
+        await gpu_monitoring_fetch(
+            url="TIME_STAMP", method="POST", payload={"description": "END"}
+        )
 
-    print("Stop")
-    await gpu_monitoring_fetch(url="STOP", method="POST")
+        print("Stop")
+        await gpu_monitoring_fetch(url="STOP", method="POST")
 
-    print(f"Sleep 2s")
-    await asyncio.sleep(2)
+        print(f"Sleep 2s")
+        await asyncio.sleep(2)
