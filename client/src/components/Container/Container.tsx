@@ -25,7 +25,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { SidebarThemeProvider } from "../../theme";
-import { userUserData } from "../../features/auth/authAPI";
+import { useUserData } from "../../features/auth/authAPI";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { logout } from "../../features/auth";
 
@@ -108,7 +108,7 @@ export const AppDefaultLayout = () => {
   }));
   const appDisptach = useAppDispatch();
 
-  const [, , , ,] = userUserData();
+  const [, , , ,] = useUserData();
 
   const navigate = useNavigate();
 

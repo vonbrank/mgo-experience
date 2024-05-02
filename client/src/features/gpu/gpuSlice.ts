@@ -6,6 +6,7 @@ export interface GpuModel {
   port: string;
   lastHeartBeatAt: string;
   activated: boolean;
+  privilegedUsers: { _id: string }[];
 }
 
 interface GpuState {

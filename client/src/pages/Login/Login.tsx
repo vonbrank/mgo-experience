@@ -8,7 +8,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { useUserLogin, userUserData } from "../../features/auth/authAPI";
+import { useUserLogin, useUserData } from "../../features/auth/authAPI";
 import { useEffect, useState } from "react";
 
 const Login = () => {
@@ -32,7 +32,7 @@ const Login = () => {
     }
   }, [userLoginResult, loginError]);
 
-  const [fetchUserDataResult, , fetchUserDataError] = userUserData();
+  const [fetchUserDataResult, , fetchUserDataError] = useUserData();
 
   useEffect(() => {
     if (fetchUserDataResult && fetchUserDataError === null) {

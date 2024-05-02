@@ -40,7 +40,7 @@ interface GpuInfo {
   gpuModel: string;
 }
 
-const getFakeGpuNameAndModelFromID = (id: string) => {
+export const getFakeGpuNameAndModelFromID = (id: string) => {
   const idEnd = id.substring(id.length - 3);
   const indexHex = parseInt(idEnd, 16);
   const gpuModels = [
