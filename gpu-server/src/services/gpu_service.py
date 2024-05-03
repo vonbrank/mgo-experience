@@ -91,10 +91,11 @@ async def start_monitor_gpu_state() -> None:
 
 async def stop_monitor_gpu_state() -> None:
     
+    global is_monitoring
+    
     if is_monitoring == False:
         return
     
-    global is_monitoring
     is_monitoring = False
     await asyncio.sleep(gpu_monitoring_frequency * 2)
     await exit_gpu_monitoring()
