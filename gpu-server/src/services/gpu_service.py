@@ -154,13 +154,13 @@ async def exit_gpu_monitoring() -> None:
         print("Stop")
         await gpu_monitoring_fetch(url="STOP", method="POST")
 
-    print(f"Sleep 2s")
-    await asyncio.sleep(2)
+        print(f"Sleep 2s")
+        await asyncio.sleep(2)
 
-    await gpu_monitoring_fetch(
-        url="EXIT",
-        method="POST",
-    )
+        await gpu_monitoring_fetch(
+            url="EXIT",
+            method="POST",
+        )
 
 
 async def run_performance_measurement() -> None:
