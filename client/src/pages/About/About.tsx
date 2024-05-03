@@ -1,33 +1,22 @@
-import { useState } from "react";
 import reactLogo from "../../assets/react.svg";
+import expressLogo from "../../assets/express.svg";
+import muiLogo from "../../assets/material-ui.svg";
+import mongodbLogo from "../../assets/mongodb.svg";
+import reduxLogo from "../../assets/redux.svg";
 import styles from "./About.module.scss";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
+
 import {
-  TextField,
   Typography,
   Stack,
   List,
   ListItem,
-  ListSubheader,
-  ListItemIcon,
   ListItemText,
-  Switch,
-  ButtonGroup,
-  ToggleButtonGroup,
-  ToggleButton,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Link,
   Divider,
-  ListItemButton,
   Container,
 } from "@mui/material";
-import TranslateIcon from "@mui/icons-material/Translate";
-import DarkModeIcon from "@mui/icons-material/DarkMode";
-import { useAppSelector, useAppDispatch } from "../../store/hooks";
+
+import { useAppDispatch } from "../../store/hooks";
 
 const LogoBlock = () => {
   return (
@@ -39,6 +28,36 @@ const LogoBlock = () => {
           </a>
           <a href="https://reactjs.org" target="_blank">
             <img src={reactLogo} className="logo react" alt="React logo" />
+          </a>
+          <a href="https://redux.js.org/" target="_blank">
+            <img src={reduxLogo} className="logo redux" alt="Redux logo" />
+          </a>
+          <a href="https://mui.com/" target="_blank">
+            <img
+              src={muiLogo}
+              className="logo mui"
+              alt="MUI logo"
+              style={{
+                width: "6rem",
+                height: "6rem",
+                padding: "1.2rem",
+              }}
+            />
+          </a>
+          <a href="https://expressjs.com/" target="_blank">
+            <img
+              src={expressLogo}
+              className="logo express"
+              alt="Express logo"
+            />
+          </a>
+
+          <a href="https://www.mongodb.com/" target="_blank">
+            <img
+              src={mongodbLogo}
+              className="logo mongodb"
+              alt="MongoDB logo"
+            />
           </a>
         </div>
       </Stack>

@@ -25,6 +25,18 @@
       &:global(.react):hover {
         filter: drop-shadow(0 0 2rem #61dafb);
       }
+      &:global(.express):hover {
+        filter: drop-shadow(0 0 2rem #747bff);
+      }
+      &:global(.mui):hover {
+        filter: drop-shadow(0 0 2rem #61dafb);
+      }
+      &:global(.mongodb):hover {
+        filter: drop-shadow(0 0 2rem #61fb69);
+      }
+      &:global(.redux):hover {
+        filter: drop-shadow(0 0 2rem #747bff);
+      }
     }
 
     :global(.row) {
