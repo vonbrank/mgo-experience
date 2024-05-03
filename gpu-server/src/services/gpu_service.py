@@ -155,3 +155,14 @@ async def exit_gpu_monitoring() -> None:
 
     print(f"Sleep 2s")
     await asyncio.sleep(2)
+
+    await gpu_monitoring_fetch(
+        url="EXIT",
+        method="POST",
+    )
+
+
+async def run_performance_measurement() -> None:
+    PMFlagBase = f"-e -i {performance_measurement_gpu_index} -s {performance_measurement_sample_interval} -t {performance_measurement_power_threshold} -m JSTP_DAEMON -trace"
+    cmd = f"sudo {performance_measurement_app_path} {PMFlagBase}"
+    await asyncio.create_subprocess_shell(cmd)
