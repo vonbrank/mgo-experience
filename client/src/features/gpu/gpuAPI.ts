@@ -120,7 +120,7 @@ interface UsageData {
   gpu_core: number;
 }
 
-interface GpuStatsData {
+export interface GpuStatsData {
   power_data: PowerData;
   energy_data: EnergyData;
   usage_data: UsageData;
@@ -213,7 +213,7 @@ export const useFetchGpuStats: (
     return () => {
       clearInterval(timerHandler);
     };
-  }, [fetch]);
+  }, [fetch, host, port, fetchIntervalInSeconds]);
 
   return [data, loading, error, fetch];
 };
