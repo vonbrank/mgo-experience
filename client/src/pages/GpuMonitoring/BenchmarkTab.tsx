@@ -20,14 +20,17 @@ import AutorenewOutlinedIcon from "@mui/icons-material/AutorenewOutlined";
 import CheckCircleOutlineOutlinedIcon from "@mui/icons-material/CheckCircleOutlineOutlined";
 import style from "./BenchmarkTab.module.scss";
 import DownloadIcon from "@mui/icons-material/Download";
+import {
+  BenchmarkState,
+  GpuBenchmarkTestCase,
+  useFetchGpuBenchmarkState,
+  useUpdateGpuBenchmarkState,
+} from "../../features/gpu/gpuAPI";
+import { GpuModel } from "../../features/gpu";
 
-interface TestCase {
-  name: string;
-  label: string;
-  description: string;
-  imageUrl: string;
-}
-const testCases: TestCase[] = [
+type TestCase = GpuBenchmarkTestCase;
+
+const testCasesFake: TestCase[] = [
   {
     name: "vectorPlus",
     label: "Vector Plus",
@@ -58,37 +61,83 @@ const testCases: TestCase[] = [
   },
 ];
 
-type BenchmarkState = "IDLE" | "RUNNING" | "COMPLETED";
+interface BenchmarkTabProps {
+  gpuModel: GpuModel;
+}
 
-const BenchmarkTab = () => {
+const BenchmarkTab = (props: BenchmarkTabProps) => {
+  const { gpuModel } = props;
+
   const [benchmarkState, setBenmarkState] = useState<BenchmarkState | null>(
     "IDLE"
   );
+  const [benchmarkTestCases, setBenchmarkTestCases] = useState<TestCase[]>([]);
+  const [currentRunningTestCases, setCurrentRunningTestCases] =
+    useState<TestCase | null>(null);
 
   const [currentRunningTimer, setCurrentRunningTimer] = useState<number | null>(
     null
   );
 
-  const handleRun = () => {
-    if (currentRunningTimer) {
-      setCurrentRunningTimer(null);
+  const [currentStartTime, setCurrentStartTime] = useState<Date | null>(null);
+  const [currentCompletedTime, setCurrentCompletedTime] = useState<Date | null>(
+    null
+  );
+
+  const [
+    gpuBenchmarkState,
+    loadingGpuBenchmarkState,
+    gpuBenchmarkStateError,
+    fetchGpuBenchmarkState,
+  ] = useFetchGpuBenchmarkState(gpuModel.host, gpuModel.port);
+
+  useEffect(() => {
+    fetchGpuBenchmarkState();
+  }, []);
+
+  useEffect(() => {
+    if (
+      gpuBenchmarkState &&
+      loadingGpuBenchmarkState === false &&
+      gpuBenchmarkStateError === null
+    ) {
+      setBenmarkState(gpuBenchmarkState.state);
+
+      if (gpuBenchmarkState.state === "IDLE") {
+        setBenchmarkTestCases(gpuBenchmarkState.testCases);
+      } else if (gpuBenchmarkState.state === "RUNNING") {
+        setCurrentRunningTestCases(gpuBenchmarkState.info.testCase);
+        setCurrentStartTime(new Date(gpuBenchmarkState.info.startTime));
+      } else {
+        setCurrentRunningTestCases(gpuBenchmarkState.report.testCase);
+        setCurrentStartTime(new Date(gpuBenchmarkState.report.startTime));
+        setCurrentCompletedTime(
+          new Date(gpuBenchmarkState.report.completedTime)
+        );
+      }
     }
+  }, [gpuBenchmarkState, loadingGpuBenchmarkState, gpuBenchmarkStateError]);
 
-    const timer = setTimeout(() => {
-      setBenmarkState("COMPLETED");
-      setCurrentRunningTimer(null);
-    }, 5000);
+  const [
+    updateGpuBenchmarkResut,
+    updatingGpuBenchmarkState,
+    updateGpuBenchmarkStateError,
+    updateGpuBenchmarkState,
+  ] = useUpdateGpuBenchmarkState(gpuModel.host, gpuModel.port);
 
-    setBenmarkState("RUNNING");
-    setCurrentRunningTimer(timer);
-  };
-
-  const handleReset = () => {
-    if (currentRunningTimer) {
-      setCurrentRunningTimer(null);
+  useEffect(() => {
+    if (
+      updateGpuBenchmarkResut &&
+      updatingGpuBenchmarkState === false &&
+      updateGpuBenchmarkStateError === null
+    ) {
+      fetchGpuBenchmarkState();
     }
-    setBenmarkState("IDLE");
-  };
+  }, [
+    updateGpuBenchmarkResut,
+    updatingGpuBenchmarkState,
+    updateGpuBenchmarkStateError,
+  ]);
 
   useEffect(() => {
     return () => {
@@ -97,6 +146,27 @@ const BenchmarkTab = () => {
       }
     };
   }, [setCurrentRunningTimer]);
+
+  const handleRun = () => {
+    updateGpuBenchmarkState({
+      actionType: "Run",
+      actionOption: {
+        testCaseName: "vectorAddition",
+        enableMfGpoeo: false,
+      },
+    });
+  };
+
+  const handleUpdateRunningState = () => {
+    fetchGpuBenchmarkState();
+  };
+
+  const handleReset = () => {
+    updateGpuBenchmarkState({
+      actionType: "Reset",
+      actionOption: null,
+    });
+  };
 
   return (
     <Stack
@@ -107,16 +177,23 @@ const BenchmarkTab = () => {
     >
       <Stack sx={{ zIndex: 10 }}>
         {benchmarkState === "IDLE" && (
-          <BenchmarkIdlePanel handleRun={handleRun} />
+          <BenchmarkIdlePanel
+            handleRun={handleRun}
+            testCases={benchmarkTestCases}
+          />
         )}
-        {benchmarkState === "RUNNING" && (
-          <BenchmarkRunning testCase={testCases[0]} startTime={new Date()} />
+        {benchmarkState === "RUNNING" && currentRunningTestCases && (
+          <BenchmarkRunning
+            testCase={currentRunningTestCases}
+            startTime={currentStartTime || new Date()}
+            onUpdateRunningState={handleUpdateRunningState}
+          />
         )}
-        {benchmarkState === "COMPLETED" && (
+        {benchmarkState === "COMPLETED" && currentRunningTestCases && (
           <BenchmarkCompleted
-            testCase={testCases[0]}
-            startTime={new Date()}
-            completedTime={new Date()}
+            testCase={currentRunningTestCases}
+            startTime={currentStartTime || new Date()}
+            completedTime={currentCompletedTime || new Date()}
             handleReset={handleReset}
           />
         )}
@@ -159,11 +236,12 @@ const BenchmarkTab = () => {
 export default BenchmarkTab;
 
 interface BenchmarkIdlePanelProps {
+  testCases: TestCase[];
   handleRun?: () => void;
 }
 
 const BenchmarkIdlePanel = (props: BenchmarkIdlePanelProps) => {
-  const { handleRun } = props;
+  const { handleRun, testCases } = props;
 
   const testCasesChunks: TestCase[][] = [];
   const columnCount = 2;
@@ -173,6 +251,7 @@ const BenchmarkIdlePanel = (props: BenchmarkIdlePanelProps) => {
       testCasesChunks.push(testCases.slice(i, i + columnCount));
     }
   }
+
   return (
     <Stack sx={{ padding: "3.2rem 6.4rem" }}>
       <Stack spacing={"3.6rem"}>
@@ -306,10 +385,22 @@ const BenchmarkInfo = (props: BenchmarkInfoProps) => {
 interface BenchmarkRunningProps {
   testCase: TestCase;
   startTime: Date;
+  onUpdateRunningState: () => void;
 }
 
 const BenchmarkRunning = (props: BenchmarkRunningProps) => {
-  const { testCase, startTime } = props;
+  const { testCase, startTime, onUpdateRunningState } = props;
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      onUpdateRunningState();
+    }, 1000);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
+
   return (
     <Stack sx={{ padding: "3.2rem 6.4rem" }}>
       <Paper>

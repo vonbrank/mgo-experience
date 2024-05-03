@@ -289,3 +289,160 @@ export const useFetchAuthUserGpu: (
 
   return [data, loading, error, fetch];
 };
+
+export type BenchmarkState = "IDLE" | "RUNNING" | "COMPLETED";
+
+export interface GpuBenchmarkTestCase {
+  name: string;
+  label: string;
+  description: string;
+  imageUrl: string;
+}
+
+interface GpuBenchmarkReport {
+  startTime: string;
+  completedTime: string;
+  stdout: string;
+  stderr: string;
+  data: any[];
+  testCase: GpuBenchmarkTestCase;
+}
+
+type FetchGpuBenchmarkStateResult =
+  | {
+      state: "IDLE";
+      testCases: GpuBenchmarkTestCase[];
+    }
+  | {
+      state: "RUNNING";
+      info: {
+        startTime: string;
+        testCase: GpuBenchmarkTestCase;
+      };
+    }
+  | {
+      state: "COMPLETED";
+      report: GpuBenchmarkReport;
+    };
+
+interface FetchGpuBenchmarkStateResponse {
+  status: string;
+  data: FetchGpuBenchmarkStateResult;
+}
+
+export const useFetchGpuBenchmarkState: (
+  host: string,
+  port: string
+) => [
+  FetchGpuBenchmarkStateResult | null,
+  boolean,
+  Error | null,
+  () => void
+] = (host, port) => {
+  const [data, setData] = useState<FetchGpuBenchmarkStateResult | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetch = useCallback(async () => {
+    setLoading(true);
+
+    setError(null);
+
+    try {
+      const res = await axios.get<FetchGpuBenchmarkStateResponse>(
+        `http://${host}:${port}/api/v1/gpu/benchmark`
+      );
+
+      if (res.status === 200 && res.data.status === "success") {
+        const { data } = res;
+        const resultData = data.data;
+        setData(resultData);
+      } else {
+        setData(null);
+        setError(new Error("Faied to fetch GPU benchmark state."));
+      }
+    } catch (e) {
+      if (e instanceof Error) {
+        setError(e);
+      } else {
+        setError(new Error(`${e}`));
+      }
+      setData(null);
+    }
+
+    setLoading(false);
+  }, [setData, setLoading, setError]);
+
+  return [data, loading, error, fetch];
+};
+
+type UpdateGpuBenchmarkStateConfig =
+  | {
+      actionType: "Run";
+      actionOption: {
+        testCaseName: string;
+        enableMfGpoeo: boolean;
+      };
+    }
+  | {
+      actionType: "Reset";
+      actionOption: null;
+    };
+
+interface UpdateGpuBenchmarkStateResponse {
+  status: string;
+  data: UpdateGpuBenchmarkStateResult;
+}
+interface UpdateGpuBenchmarkStateResult {
+  benchmarkState: BenchmarkState;
+}
+
+export const useUpdateGpuBenchmarkState: (
+  host: string,
+  port: string
+) => [
+  UpdateGpuBenchmarkStateResult | null,
+  boolean,
+  Error | null,
+  (config: UpdateGpuBenchmarkStateConfig) => void
+] = (host, port) => {
+  const [data, setData] = useState<UpdateGpuBenchmarkStateResult | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetch = useCallback(
+    async (config: UpdateGpuBenchmarkStateConfig) => {
+      setLoading(true);
+
+      setError(null);
+
+      try {
+        const res = await axios.post<UpdateGpuBenchmarkStateResponse>(
+          `http://${host}:${port}/api/v1/gpu/benchmark`,
+          config
+        );
+
+        if (res.status === 200 && res.data.status === "success") {
+          const { data } = res;
+          const resultData = data.data;
+          setData(resultData);
+        } else {
+          setData(null);
+          setError(new Error("Faied to update GPU benchmark state."));
+        }
+      } catch (e) {
+        if (e instanceof Error) {
+          setError(e);
+        } else {
+          setError(new Error(`${e}`));
+        }
+        setData(null);
+      }
+
+      setLoading(false);
+    },
+    [setData, setLoading, setError]
+  );
+
+  return [data, loading, error, fetch];
+};

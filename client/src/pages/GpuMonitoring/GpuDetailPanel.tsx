@@ -123,7 +123,7 @@ export const GpuDetail = (props: GpuDetailProps) => {
             />
           )}
           {currentTab === "detail" && <GpuMonitoringDetail />}
-          {currentTab === "benchmark" && <BenchmarkTab />}
+          {currentTab === "benchmark" && <BenchmarkTab gpuModel={gpuModel} />}
         </Stack>
       </Stack>
     </SecondaryLevelSidebarThemeProvider>
