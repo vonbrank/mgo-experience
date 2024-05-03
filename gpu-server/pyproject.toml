@@ -22,3 +22,4 @@ license = {text = "MIT"}
 
 [tool.pdm.scripts]
 start = "python src/main.py"
+sudo-start = "sudo python src/main.py"
