@@ -18,6 +18,7 @@ import { useFetchGpuStats } from "../../features/gpu/gpuAPI";
 import { GpuModel } from "../../features/gpu";
 import { GpuMonitoringOverview } from ".";
 import { useAppSelector } from "../../store/hooks";
+import GpuMonitoringDetail from "./GpuMonitoringDetail";
 
 export const GpuDetailPanel = () => {
   const { currentMonitoringGpu } = useAppSelector((state) => ({
@@ -45,14 +46,7 @@ interface GpuDetailProps {
   gpuModel: GpuModel;
 }
 
-const ALL_GPU_DETAIL_TAB_TYPES = [
-  "overview",
-  "power",
-  "energy",
-  "frequency",
-  "temperature",
-  "usage",
-] as const;
+const ALL_GPU_DETAIL_TAB_TYPES = ["overview", "detail", "benchmark"] as const;
 
 type GpuDetailTabType = (typeof ALL_GPU_DETAIL_TAB_TYPES)[number];
 
@@ -60,16 +54,10 @@ const gpuDetailTabTypeToString = (type: GpuDetailTabType) => {
   switch (type) {
     case "overview":
       return "Overview";
-    case "power":
-      return "Power";
-    case "energy":
-      return "Energy";
-    case "frequency":
-      return "Frequency";
-    case "temperature":
-      return "Temperature";
-    case "usage":
-      return "Usage";
+    case "detail":
+      return "Detail";
+    case "benchmark":
+      return "Benchmark";
   }
 };
 
@@ -82,11 +70,8 @@ export const GpuDetail = (props: GpuDetailProps) => {
 
   const gpuDetailTabTypes: GpuDetailTabType[] = [
     "overview",
-    "power",
-    "energy",
-    "frequency",
-    "temperature",
-    "usage",
+    "detail",
+    "benchmark",
   ];
 
   const handleTabChange = (
@@ -136,6 +121,7 @@ export const GpuDetail = (props: GpuDetailProps) => {
               gpuStatDataSequence={gpuStatData}
             />
           )}
+          {currentTab === "detail" && <GpuMonitoringDetail />}
         </Box>
       </Stack>
     </SecondaryLevelSidebarThemeProvider>

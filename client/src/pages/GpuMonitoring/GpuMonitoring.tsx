@@ -92,6 +92,9 @@ const GpuMonitoring = () => {
                     <ListItem disablePadding key={gpuInfo.id}>
                       <ListItemButton
                         onClick={() => handleItemClicked(gpuInfo)}
+                        className={`${
+                          currentMonitoringGpu?.id == gpuInfo.id ? "active" : ""
+                        }`}
                         sx={{
                           "&.active": {
                             backgroundColor: (theme) =>
