@@ -19,6 +19,7 @@ import { GpuModel } from "../../features/gpu";
 import { GpuMonitoringOverview } from ".";
 import { useAppSelector } from "../../store/hooks";
 import GpuMonitoringDetail from "./GpuMonitoringDetail";
+import BenchmarkTab from "./BenchmarkTab";
 
 export const GpuDetailPanel = () => {
   const { currentMonitoringGpu } = useAppSelector((state) => ({
@@ -94,7 +95,7 @@ export const GpuDetail = (props: GpuDetailProps) => {
 
   return (
     <SecondaryLevelSidebarThemeProvider>
-      <Stack maxHeight={"100vh"}>
+      <Stack maxHeight={"100vh"} height={"100vh"}>
         <Stack
           direction={"row"}
           justifyContent={"space-between"}
@@ -114,7 +115,7 @@ export const GpuDetail = (props: GpuDetailProps) => {
           </IconButton>
         </Stack>
         <Divider flexItem />
-        <Box sx={{ flex: 1, overflowY: "scroll" }}>
+        <Stack sx={{ flex: 1, overflowY: "scroll" }}>
           {currentTab === "overview" && (
             <GpuMonitoringOverview
               gpuModel={gpuModel}
@@ -122,7 +123,8 @@ export const GpuDetail = (props: GpuDetailProps) => {
             />
           )}
           {currentTab === "detail" && <GpuMonitoringDetail />}
-        </Box>
+          {currentTab === "benchmark" && <BenchmarkTab />}
+        </Stack>
       </Stack>
     </SecondaryLevelSidebarThemeProvider>
   );

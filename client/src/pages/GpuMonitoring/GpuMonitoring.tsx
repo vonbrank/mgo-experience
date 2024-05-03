@@ -22,6 +22,7 @@ import { TransitionGroup } from "react-transition-group";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { startMonitoringGpu } from "../../features/gpu";
 import { GpuDetailPanel } from ".";
+import { useEffect } from "react";
 
 interface GpuInfo {
   id: string;
@@ -71,6 +72,20 @@ const GpuMonitoring = () => {
       dispatch(startMonitoringGpu(gpuInfo));
     }
   };
+
+  useEffect(() => {
+    if (currentMonitoringGpu) {
+      const newCurrentMonitoringGpu = fetchUserGpuStateResult.find(
+        (item) => item.id === currentMonitoringGpu.id
+      );
+      if (
+        newCurrentMonitoringGpu &&
+        newCurrentMonitoringGpu.activated === false
+      ) {
+        dispatch(startMonitoringGpu(null));
+      }
+    }
+  }, fetchUserGpuStateResult);
 
   return (
     <Stack direction={"row"} height={"100vh"}>
