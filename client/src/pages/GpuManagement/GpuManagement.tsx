@@ -32,14 +32,22 @@ import { GpuModel } from "../../features/gpu";
 const GpuManagement = () => {
   const [users, loading, error, fetchUsers] = useAllUserData();
 
+  const theme = useTheme();
+
   return (
     <Stack direction={"row"} height={"100vh"}>
       <Box
         width={"36rem"}
-        sx={{ backgroundColor: grey[100], overflowY: "scroll" }}
+        sx={{
+          backgroundColor: (theme) =>
+            theme.palette.mode === "light" ? grey[100] : grey[900],
+          overflowY: "scroll",
+        }}
         height={"100%"}
       >
-        <SecondaryLevelSidebarThemeProvider>
+        <SecondaryLevelSidebarThemeProvider
+          lightOrDarkMode={theme.palette.mode}
+        >
           <Typography padding={"1.6rem 3rem"} variant="h6">
             User GPUs Authorization
           </Typography>
@@ -112,8 +120,10 @@ export const UserGpuManagementPanel = () => {
     fetch();
   };
 
+  const theme = useTheme();
+
   return (
-    <SecondaryLevelSidebarThemeProvider>
+    <SecondaryLevelSidebarThemeProvider lightOrDarkMode={theme.palette.mode}>
       <Stack height={"100vh"}>
         <Container sx={{ flex: 1, overflowY: "scroll" }}>
           <Typography marginY={"3.2rem"} variant="h4">

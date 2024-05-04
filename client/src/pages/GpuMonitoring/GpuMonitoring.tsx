@@ -6,6 +6,7 @@ import {
   Stack,
   Typography,
   alpha,
+  useTheme,
 } from "@mui/material";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
@@ -87,14 +88,22 @@ const GpuMonitoring = () => {
     }
   }, fetchUserGpuStateResult);
 
+  const theme = useTheme();
+
   return (
     <Stack direction={"row"} height={"100vh"}>
       <Box
         width={"36rem"}
-        sx={{ backgroundColor: grey[100], overflowY: "scroll" }}
+        sx={{
+          backgroundColor: (theme) =>
+            theme.palette.mode === "light" ? grey[100] : grey[900],
+          overflowY: "scroll",
+        }}
         height={"100%"}
       >
-        <SecondaryLevelSidebarThemeProvider>
+        <SecondaryLevelSidebarThemeProvider
+          lightOrDarkMode={theme.palette.mode}
+        >
           <Typography padding={"1.6rem 3rem"} variant="h6">
             Active GPU Servers
           </Typography>
@@ -111,14 +120,19 @@ const GpuMonitoring = () => {
                           currentMonitoringGpu?.id == gpuInfo.id ? "active" : ""
                         }`}
                         sx={{
-                          "&.active": {
-                            backgroundColor: (theme) =>
-                              theme.palette.primary.main,
+                          "&.active": (theme) => ({
+                            backgroundColor: theme.palette.primary.main,
                             "& .MuiTypography-root.label-primary": {
-                              color: grey[50],
+                              color:
+                                theme.palette.mode === "light"
+                                  ? grey[50]
+                                  : theme.palette.text,
                             },
                             "& .MuiTypography-root.label-secondary": {
-                              color: grey[500],
+                              color:
+                                theme.palette.mode === "light"
+                                  ? grey[500]
+                                  : theme.palette.text.secondary,
                             },
                             "& .MuiChip-root": {
                               backgroundColor: alpha(grey[50], 0.08),
@@ -126,7 +140,7 @@ const GpuMonitoring = () => {
                                 color: grey[50],
                               },
                             },
-                          },
+                          }),
                         }}
                       >
                         <Stack

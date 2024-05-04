@@ -1,6 +1,11 @@
 import React, { useMemo } from "react";
 import { useMediaQuery } from "@mui/material";
-import { createTheme, ThemeOptions, ThemeProvider } from "@mui/material/styles";
+import {
+  createTheme,
+  ThemeOptions,
+  ThemeProvider,
+  useTheme,
+} from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import { green, pink, teal } from "@mui/material/colors";
 

@@ -6,6 +6,7 @@ import {
   Tab,
   Tabs,
   Typography,
+  useTheme,
 } from "@mui/material";
 
 import { SecondaryLevelSidebarThemeProvider } from "../../theme";
@@ -93,8 +94,10 @@ export const GpuDetail = (props: GpuDetailProps) => {
     undefined
   );
 
+  const theme = useTheme();
+
   return (
-    <SecondaryLevelSidebarThemeProvider>
+    <SecondaryLevelSidebarThemeProvider lightOrDarkMode={theme.palette.mode}>
       <Stack maxHeight={"100vh"} height={"100vh"}>
         <Stack
           direction={"row"}

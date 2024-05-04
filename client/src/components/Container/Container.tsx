@@ -29,6 +29,7 @@ import { SidebarThemeProvider } from "../../theme";
 import { useUserData } from "../../features/auth/authAPI";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { logout } from "../../features/auth";
+import { FormattedMessage } from "react-intl";
 
 const drawerWidth = "30rem";
 
@@ -51,7 +52,7 @@ const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })<{
 }));
 
 interface ListItemProp {
-  text: string;
+  text: string | React.ReactNode;
   iconElement: React.ReactNode;
   to: string;
 }
@@ -71,39 +72,39 @@ export const AppDefaultLayout = () => {
 
   const listItemPropsUp: ListItemProp[] = [
     {
-      text: "Monitoring GPUs",
+      text: <FormattedMessage id="menu.monitoringGpus" />,
       iconElement: <MonitorHeartIcon />,
       to: "/monitoring-gpus",
     },
     {
-      text: "GPU Management",
+      text: <FormattedMessage id="menu.gpuManagement" />,
       iconElement: <DeveloperBoardIcon />,
       to: "/gpu-management",
     },
     {
-      text: "User Management",
+      text: <FormattedMessage id="menu.userManagement" />,
       iconElement: <PeopleIcon />,
       to: "/user-management",
     },
     {
-      text: "Notification",
+      text: <FormattedMessage id="menu.notification" />,
       iconElement: <NotificationsIcon />,
       to: "/notification",
     },
   ];
   const listItemPropsDown: ListItemProp[] = [
     {
-      text: "Settings",
+      text: <FormattedMessage id="menu.settings" />,
       iconElement: <SettingsIcon />,
       to: "/settings",
     },
     {
-      text: "Help",
+      text: <FormattedMessage id="menu.help" />,
       iconElement: <HelpCenterIcon />,
       to: "/help",
     },
     {
-      text: "About",
+      text: <FormattedMessage id="menu.about" />,
       iconElement: <InfoIcon />,
       to: "/about",
     },

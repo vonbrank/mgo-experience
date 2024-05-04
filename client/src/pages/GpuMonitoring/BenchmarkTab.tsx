@@ -214,7 +214,8 @@ const BenchmarkTab = (props: BenchmarkTabProps) => {
       >
         <Box
           sx={{
-            backgroundColor: alpha("#fff", 0.5),
+            backgroundColor: (theme) =>
+              alpha(theme.palette.mode === "light" ? "#fff" : "#000", 0.5),
             flex: 1,
           }}
         />

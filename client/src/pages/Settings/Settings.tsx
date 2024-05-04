@@ -31,9 +31,47 @@ import KeyIcon from "@mui/icons-material/Key";
 import FiberNewIcon from "@mui/icons-material/FiberNew";
 import CheckIcon from "@mui/icons-material/Check";
 import { PasswordTextField } from "../../components/TextField";
+import { LocalesKeys } from "../../features/i18n/messages";
+import { DarkMode, updateSetting } from "../../features/setting";
+
+interface LanguageSelectItem {
+  label: string;
+  value: LocalesKeys;
+}
+
+const languageSelectItems: LanguageSelectItem[] = [
+  { label: "中文", value: "CHINESE" },
+  { label: "English", value: "ENGLISH" },
+];
 
 const Settings = () => {
   const dispatch = useAppDispatch();
+
+  const { setting } = useAppSelector((state) => ({
+    setting: state.setting,
+  }));
+
+  const handleChangeLanguage = (value: LocalesKeys) => {
+    dispatch(
+      updateSetting({
+        ...setting,
+        local: value,
+      })
+    );
+  };
+
+  const handleDarkMode = (
+    event: React.MouseEvent<HTMLElement>,
+    value: DarkMode
+  ) => {
+    console.log("fuck new value", value);
+    dispatch(
+      updateSetting({
+        ...setting,
+        darkMode: value,
+      })
+    );
+  };
 
   return (
     <Stack height={"100vh"} sx={{ overflowY: "scroll" }}>
@@ -52,12 +90,12 @@ const Settings = () => {
               primary="黑暗模式"
             />
             <ToggleButtonGroup
-              // value={themeMode}
+              value={setting.darkMode}
               exclusive
-              // onChange={handleDarkMode}
+              onChange={handleDarkMode}
               aria-label="text alignment"
             >
-              <ToggleButton value="followSystem" aria-label="follow-system">
+              <ToggleButton value="follow-system" aria-label="follow-system">
                 跟随系统
               </ToggleButton>
               <ToggleButton value="light" aria-label="light">
@@ -76,12 +114,17 @@ const Settings = () => {
             <Box minWidth={"14.4rem"}>
               <FormControl fullWidth>
                 <Select
-                  // value={language}
-                  // onChange={(e) => setLanguage(e.target.value)}
+                  value={setting.local}
+                  onChange={(e) =>
+                    handleChangeLanguage(e.target.value as LocalesKeys)
+                  }
                   size="small"
                 >
-                  <MenuItem value={"Chinese"}>中文</MenuItem>
-                  <MenuItem value={"English"}>English</MenuItem>
+                  {languageSelectItems.map((languageSelectItem) => (
+                    <MenuItem value={languageSelectItem.value}>
+                      {languageSelectItem.label}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
             </Box>
