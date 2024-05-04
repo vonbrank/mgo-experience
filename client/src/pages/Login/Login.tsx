@@ -128,7 +128,7 @@ const Login = () => {
                     flex: 1,
                     objectPosition: "left",
                   }}
-                  src="https://i.ytimg.com/vi/xFEK6Xc3pBA/sddefault.jpg"
+                  src="https://vonbrank-images.oss-cn-hangzhou.aliyuncs.com/20240504-MGO-Experience/login-side-image.jpg"
                 />
               </Stack>
             </Stack>

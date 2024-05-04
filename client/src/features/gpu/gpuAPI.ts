@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { useAppSelector } from "../../store/hooks";
-import { masterServerAxios } from "../../utils/axios";
+import { gpuServerAxios, masterServerAxios } from "../../utils/axios";
 import { LOCAL_STORAGE_JWT_KEY } from "../auth/authAPI";
-import axios from "axios";
 import { GpuModel } from ".";
+import { useToast } from "material-ui-toast-wrapper";
 
 export interface FetchUserGpuStateResultItem {
   id: string;
@@ -34,6 +34,7 @@ export const useFetchUserGpuState: (
   const [result, setResult] = useState<FetchUserGpuStateResult>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+  const { showTemporaryText } = useToast();
 
   const fetch = useCallback(async () => {
     if (userId === undefined) {
@@ -77,6 +78,10 @@ export const useFetchUserGpuState: (
       } else {
         setResult([]);
         setError(new Error("Fetch user gpu state failed"));
+        showTemporaryText({
+          severity: "error",
+          message: "Fetch user gpu state failed",
+        });
       }
     } catch (e) {
       if (e instanceof Error) {
@@ -85,6 +90,10 @@ export const useFetchUserGpuState: (
         setError(new Error(`${e}`));
       }
       setResult([]);
+      showTemporaryText({
+        severity: "error",
+        message: `${e}`,
+      });
     }
 
     setLoading(false);
@@ -151,6 +160,8 @@ export const useFetchGpuStats: (
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
+  const { showTemporaryText } = useToast();
+
   const fetch = useCallback(async () => {
     setLoading(true);
 
@@ -161,7 +172,7 @@ export const useFetchGpuStats: (
       //   "/gpu/state"
       // );
 
-      const res = await axios.get<FetchGpuStatsResponse>(
+      const res = await gpuServerAxios.get<FetchGpuStatsResponse>(
         `http://${host}:${port}/api/v1/gpu/state`
       );
 
@@ -185,10 +196,13 @@ export const useFetchGpuStats: (
           }
           return newData;
         });
-        console.log("after fuck", res.data.data);
       } else {
         setData([]);
         setError(new Error("Fetch user gpu state failed"));
+        showTemporaryText({
+          severity: "error",
+          message: "Fetch user gpu state failed",
+        });
       }
     } catch (e) {
       if (e instanceof Error) {
@@ -197,6 +211,10 @@ export const useFetchGpuStats: (
         setError(new Error(`${e}`));
       }
       setData([]);
+      showTemporaryText({
+        severity: "error",
+        message: `${e}`,
+      });
     }
 
     setLoading(false);
@@ -304,11 +322,50 @@ interface GpuBenchmarkReport {
   completedTime: string;
   stdout: string;
   stderr: string;
-  data: any[];
   testCase: GpuBenchmarkTestCase;
+  data: BenchmarkSampleData[];
+  summary: BenchmarkSummaryData;
 }
 
-type FetchGpuBenchmarkStateResult =
+export interface BenchmarkSampleData {
+  timestamp: string;
+  power: number;
+  gpuUtil: number;
+  smClk: number;
+  memUtil: number;
+  memClk: number;
+  cpuPower: number;
+}
+
+export interface BenchmarkSummaryData {
+  enery: number;
+  minPower: number;
+  avgPower: number;
+  maxPower: number;
+  powerAboveThreshold: number;
+  eneryAboveThreshold: number;
+  minPoweAboveThresholdr: number;
+  avgPowerAboveThreshold: number;
+  maxPowerAboveThreshold: number;
+  minGPUUtil: number;
+  avgGPUUtil: number;
+  maxGPUUtil: number;
+  minSMClk: number;
+  avgSMClk: number;
+  maxSMClk: number;
+  minMemUtil: number;
+  avgMemUtil: number;
+  maxMemUtil: number;
+  minMemClk: number;
+  avgMemClk: number;
+  maxMemClk: number;
+  eneryCPU: number;
+  minPowerCPU: number;
+  avgPowerCPU: number;
+  maxPowerCPU: number;
+}
+
+export type FetchGpuBenchmarkStateResult =
   | {
       state: "IDLE";
       testCases: GpuBenchmarkTestCase[];
@@ -322,6 +379,7 @@ type FetchGpuBenchmarkStateResult =
     }
   | {
       state: "COMPLETED";
+
       report: GpuBenchmarkReport;
     };
 
@@ -349,7 +407,7 @@ export const useFetchGpuBenchmarkState: (
     setError(null);
 
     try {
-      const res = await axios.get<FetchGpuBenchmarkStateResponse>(
+      const res = await gpuServerAxios.get<FetchGpuBenchmarkStateResponse>(
         `http://${host}:${port}/api/v1/gpu/benchmark`
       );
 
@@ -417,7 +475,7 @@ export const useUpdateGpuBenchmarkState: (
       setError(null);
 
       try {
-        const res = await axios.post<UpdateGpuBenchmarkStateResponse>(
+        const res = await gpuServerAxios.post<UpdateGpuBenchmarkStateResponse>(
           `http://${host}:${port}/api/v1/gpu/benchmark`,
           config
         );

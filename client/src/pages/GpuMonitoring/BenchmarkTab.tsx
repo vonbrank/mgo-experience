@@ -21,12 +21,18 @@ import CheckCircleOutlineOutlinedIcon from "@mui/icons-material/CheckCircleOutli
 import style from "./BenchmarkTab.module.scss";
 import DownloadIcon from "@mui/icons-material/Download";
 import {
+  BenchmarkSampleData,
   BenchmarkState,
+  BenchmarkSummaryData,
+  FetchGpuBenchmarkStateResult,
   GpuBenchmarkTestCase,
   useFetchGpuBenchmarkState,
   useUpdateGpuBenchmarkState,
 } from "../../features/gpu/gpuAPI";
 import { GpuModel } from "../../features/gpu";
+import ReactApexChart from "react-apexcharts";
+import { MonitoringBlockContainer } from "../../components/Container";
+import Highlight from "react-highlight";
 
 type TestCase = GpuBenchmarkTestCase;
 
@@ -65,22 +71,15 @@ interface BenchmarkTabProps {
   gpuModel: GpuModel;
 }
 
+type BenchmarkStateResult = FetchGpuBenchmarkStateResult;
+
 const BenchmarkTab = (props: BenchmarkTabProps) => {
   const { gpuModel } = props;
 
-  const [benchmarkState, setBenmarkState] = useState<BenchmarkState | null>(
-    "IDLE"
-  );
-  const [benchmarkTestCases, setBenchmarkTestCases] = useState<TestCase[]>([]);
-  const [currentRunningTestCases, setCurrentRunningTestCases] =
-    useState<TestCase | null>(null);
+  const [benchmarkState, setBenmarkState] =
+    useState<BenchmarkStateResult | null>(null);
 
   const [currentRunningTimer, setCurrentRunningTimer] = useState<number | null>(
-    null
-  );
-
-  const [currentStartTime, setCurrentStartTime] = useState<Date | null>(null);
-  const [currentCompletedTime, setCurrentCompletedTime] = useState<Date | null>(
     null
   );
 
@@ -101,20 +100,7 @@ const BenchmarkTab = (props: BenchmarkTabProps) => {
       loadingGpuBenchmarkState === false &&
       gpuBenchmarkStateError === null
     ) {
-      setBenmarkState(gpuBenchmarkState.state);
-
-      if (gpuBenchmarkState.state === "IDLE") {
-        setBenchmarkTestCases(gpuBenchmarkState.testCases);
-      } else if (gpuBenchmarkState.state === "RUNNING") {
-        setCurrentRunningTestCases(gpuBenchmarkState.info.testCase);
-        setCurrentStartTime(new Date(gpuBenchmarkState.info.startTime));
-      } else {
-        setCurrentRunningTestCases(gpuBenchmarkState.report.testCase);
-        setCurrentStartTime(new Date(gpuBenchmarkState.report.startTime));
-        setCurrentCompletedTime(
-          new Date(gpuBenchmarkState.report.completedTime)
-        );
-      }
+      setBenmarkState(gpuBenchmarkState);
     }
   }, [gpuBenchmarkState, loadingGpuBenchmarkState, gpuBenchmarkStateError]);
 
@@ -176,24 +162,28 @@ const BenchmarkTab = (props: BenchmarkTabProps) => {
       }}
     >
       <Stack sx={{ zIndex: 10 }}>
-        {benchmarkState === "IDLE" && (
+        {benchmarkState && benchmarkState.state === "IDLE" && (
           <BenchmarkIdlePanel
             handleRun={handleRun}
-            testCases={benchmarkTestCases}
+            testCases={benchmarkState.testCases}
           />
         )}
-        {benchmarkState === "RUNNING" && currentRunningTestCases && (
+        {benchmarkState && benchmarkState.state === "RUNNING" && (
           <BenchmarkRunning
-            testCase={currentRunningTestCases}
-            startTime={currentStartTime || new Date()}
+            testCase={benchmarkState.info.testCase}
+            startTime={new Date(benchmarkState.info.startTime)}
             onUpdateRunningState={handleUpdateRunningState}
           />
         )}
-        {benchmarkState === "COMPLETED" && currentRunningTestCases && (
+        {benchmarkState && benchmarkState.state === "COMPLETED" && (
           <BenchmarkCompleted
-            testCase={currentRunningTestCases}
-            startTime={currentStartTime || new Date()}
-            completedTime={currentCompletedTime || new Date()}
+            testCase={benchmarkState.report.testCase}
+            startTime={new Date(benchmarkState.report.startTime)}
+            completedTime={new Date(benchmarkState.report.completedTime)}
+            sampleData={benchmarkState.report.data}
+            summaryData={benchmarkState.report.summary}
+            stdout={benchmarkState.report.stdout}
+            stderr={benchmarkState.report.stderr}
             handleReset={handleReset}
           />
         )}
@@ -205,7 +195,7 @@ const BenchmarkTab = (props: BenchmarkTabProps) => {
           height: "100%",
           overflow: "hidden",
           zIndex: 1,
-          // filter: "blur(10px)",
+          // filter: "blur(8px)",
         }}
       >
         <img
@@ -416,13 +406,68 @@ const BenchmarkRunning = (props: BenchmarkRunningProps) => {
   );
 };
 
-const BenchmarkResultChart = () => {
+interface BenchmarkResultChartProps {
+  sampleData: BenchmarkSampleData[];
+}
+
+const BenchmarkResultChart = (props: BenchmarkResultChartProps) => {
+  const { sampleData } = props;
   return (
     <Stack>
       <Typography variant="h5" marginBottom={"1.2rem"}>
         Charts
       </Typography>
       <Divider />
+      <BenchmarkSampleChart
+        label="Power"
+        data={sampleData.map((item) => [
+          new Date(item.timestamp).getTime(),
+          item.power,
+        ])}
+        unit="W"
+      />
+      <BenchmarkSampleChart
+        label="GPU Core Uage"
+        data={sampleData.map((item) => [
+          new Date(item.timestamp).getTime(),
+          item.gpuUtil,
+        ])}
+        unit="%"
+      />
+      <BenchmarkSampleChart
+        label="GPU SM Clock"
+        data={sampleData.map((item) => [
+          new Date(item.timestamp).getTime(),
+          item.smClk,
+        ])}
+        unit="MHz"
+        yaxisStepSize={1000}
+      />
+      <BenchmarkSampleChart
+        label="GPU Memory Usage"
+        data={sampleData.map((item) => [
+          new Date(item.timestamp).getTime(),
+          item.memUtil,
+        ])}
+        unit="%"
+      />
+      <BenchmarkSampleChart
+        label="GPU Memory Clock"
+        data={sampleData.map((item) => [
+          new Date(item.timestamp).getTime(),
+          item.memClk,
+        ])}
+        unit="MHz"
+        yaxisStepSize={1000}
+      />
+      <BenchmarkSampleChart
+        label="CPU Power"
+        data={sampleData.map((item) => [
+          new Date(item.timestamp).getTime(),
+          item.cpuPower,
+        ])}
+        unit="W"
+      />
     </Stack>
   );
 };
@@ -431,11 +476,24 @@ interface BenchmarkCompletedProps {
   testCase: TestCase;
   startTime: Date;
   completedTime?: Date;
+  sampleData: BenchmarkSampleData[];
+  summaryData: BenchmarkSummaryData;
+  stdout: string;
+  stderr: string;
   handleReset?: () => void;
 }
 
 const BenchmarkCompleted = (props: BenchmarkCompletedProps) => {
-  const { testCase, startTime, completedTime, handleReset } = props;
+  const {
+    testCase,
+    startTime,
+    completedTime,
+    handleReset,
+    sampleData,
+    summaryData,
+    stdout,
+    stderr,
+  } = props;
   return (
     <Stack sx={{ padding: "3.2rem 6.4rem" }}>
       <Paper>
@@ -454,9 +512,334 @@ const BenchmarkCompleted = (props: BenchmarkCompletedProps) => {
               Reset
             </Button>
           </Stack>
-          <BenchmarkResultChart />
+          <BenchmarkSummary summaryData={summaryData} />
+          <Box marginY={"2.4rem"} />
+          <BenchmarkLogOutput stdout={stdout} stderr={stderr} />
+          <Box marginY={"2.4rem"} />
+          <BenchmarkResultChart sampleData={sampleData} />
         </Box>
       </Paper>
     </Stack>
+  );
+};
+
+interface BenchmarkSummaryProps {
+  summaryData: BenchmarkSummaryData;
+}
+
+interface BenchmarkSummaryContainerProps {
+  label: string;
+  children: React.ReactNode;
+}
+
+const BenchmarkSummaryContainer = (props: BenchmarkSummaryContainerProps) => {
+  const { label, children } = props;
+  return (
+    <Stack>
+      <Typography fontWeight={"bold"}>{label}</Typography>
+      <Stack spacing="1.2rem" marginTop={"1.2rem"}>
+        {children}
+      </Stack>
+    </Stack>
+  );
+};
+
+interface BenchmarkSummaryItemBlockProps {
+  label: string;
+  value: string | number;
+  unit: string;
+}
+
+const BenchmarkSummaryItemBlock = (props: BenchmarkSummaryItemBlockProps) => {
+  const { label, value, unit } = props;
+  return (
+    <Stack direction={"row"} sx={{ flex: 1 }} spacing={"0.8rem"}>
+      <Typography>{`${label}: `}</Typography>
+      <Typography>{`${value} ${unit}`}</Typography>
+    </Stack>
+  );
+};
+
+const BenchmarkSummary = (props: BenchmarkSummaryProps) => {
+  const { summaryData } = props;
+  return (
+    <Stack>
+      <Typography variant="h5" marginBottom={"1.2rem"}>
+        Summary
+      </Typography>
+      <Divider />
+      <Stack>
+        <Stack spacing="1.8rem" marginTop={"1.8rem"}>
+          <BenchmarkSummaryContainer label="Energy & Power (All)">
+            <BenchmarkSummaryItemBlock
+              label="Energy"
+              value={summaryData.enery}
+              unit="J"
+            />
+            <Stack direction={"row"} justifyContent={"space-between"}>
+              <BenchmarkSummaryItemBlock
+                label="Min Power"
+                value={summaryData.minPower}
+                unit="W"
+              />
+              <BenchmarkSummaryItemBlock
+                label="Avg Power"
+                value={summaryData.avgPower}
+                unit="W"
+              />
+              <BenchmarkSummaryItemBlock
+                label="Max Power"
+                value={summaryData.maxPower}
+                unit="W"
+              />
+            </Stack>
+          </BenchmarkSummaryContainer>
+          <BenchmarkSummaryContainer label="Energy & Power (Above Threshold)">
+            <BenchmarkSummaryItemBlock
+              label="Power Threshold"
+              value={summaryData.powerAboveThreshold}
+              unit="W"
+            />
+            <BenchmarkSummaryItemBlock
+              label="Energy"
+              value={summaryData.eneryAboveThreshold}
+              unit="J"
+            />
+            <Stack direction={"row"} justifyContent={"space-between"}>
+              <BenchmarkSummaryItemBlock
+                label="Min Power"
+                value={summaryData.minPoweAboveThresholdr}
+                unit="W"
+              />
+              <BenchmarkSummaryItemBlock
+                label="Avg Power"
+                value={summaryData.avgPowerAboveThreshold}
+                unit="W"
+              />
+              <BenchmarkSummaryItemBlock
+                label="Max Power"
+                value={summaryData.maxPowerAboveThreshold}
+                unit="W"
+              />
+            </Stack>
+          </BenchmarkSummaryContainer>
+          <BenchmarkSummaryContainer label="GPU SM ">
+            <Stack direction={"row"} justifyContent={"space-between"}>
+              <BenchmarkSummaryItemBlock
+                label="Min GPU Usage"
+                value={summaryData.minGPUUtil}
+                unit="%"
+              />
+              <BenchmarkSummaryItemBlock
+                label="Avg GPU Usage"
+                value={summaryData.avgGPUUtil}
+                unit="%"
+              />
+              <BenchmarkSummaryItemBlock
+                label="Max GPU Usage"
+                value={summaryData.maxGPUUtil}
+                unit="%"
+              />
+            </Stack>
+            <Stack direction={"row"} justifyContent={"space-between"}>
+              <BenchmarkSummaryItemBlock
+                label="Min SM Clock"
+                value={summaryData.minSMClk}
+                unit="MHz"
+              />
+              <BenchmarkSummaryItemBlock
+                label="Avg SM Clock"
+                value={summaryData.avgSMClk}
+                unit="MHz"
+              />
+              <BenchmarkSummaryItemBlock
+                label="Max SM Clock"
+                value={summaryData.maxSMClk}
+                unit="MHz"
+              />
+            </Stack>
+          </BenchmarkSummaryContainer>
+          <BenchmarkSummaryContainer label="GPU Memory ">
+            <Stack direction={"row"} justifyContent={"space-between"}>
+              <BenchmarkSummaryItemBlock
+                label="Min Mem Usage"
+                value={summaryData.minMemUtil}
+                unit="%"
+              />
+              <BenchmarkSummaryItemBlock
+                label="Avg Mem Usage"
+                value={summaryData.avgMemUtil}
+                unit="%"
+              />
+              <BenchmarkSummaryItemBlock
+                label="Max Mem Usage"
+                value={summaryData.maxMemUtil}
+                unit="%"
+              />
+            </Stack>
+            <Stack direction={"row"} justifyContent={"space-between"}>
+              <BenchmarkSummaryItemBlock
+                label="Min Mem Clock"
+                value={summaryData.minMemClk}
+                unit="MHz"
+              />
+              <BenchmarkSummaryItemBlock
+                label="Avg Mem Clock"
+                value={summaryData.avgMemClk}
+                unit="MHz"
+              />
+              <BenchmarkSummaryItemBlock
+                label="Max Mem Clock"
+                value={summaryData.maxMemClk}
+                unit="MHz"
+              />
+            </Stack>
+          </BenchmarkSummaryContainer>
+          <BenchmarkSummaryContainer label="CPU Energy & Power">
+            <BenchmarkSummaryItemBlock
+              label="Energy"
+              value={summaryData.eneryCPU}
+              unit="J"
+            />
+            <Stack direction={"row"} justifyContent={"space-between"}>
+              <BenchmarkSummaryItemBlock
+                label="Min Power"
+                value={summaryData.minPowerCPU}
+                unit="W"
+              />
+              <BenchmarkSummaryItemBlock
+                label="Avg Power"
+                value={summaryData.avgPowerCPU}
+                unit="W"
+              />
+              <BenchmarkSummaryItemBlock
+                label="Max Power"
+                value={summaryData.maxPowerCPU}
+                unit="W"
+              />
+            </Stack>
+          </BenchmarkSummaryContainer>
+        </Stack>
+      </Stack>
+    </Stack>
+  );
+};
+
+interface BenchmarkLogOutputProps {
+  stdout: string;
+  stderr: string;
+}
+
+const BenchmarkLogOutput = (props: BenchmarkLogOutputProps) => {
+  const { stdout, stderr } = props;
+  return (
+    <Stack>
+      <Typography variant="h5" marginBottom={"1.2rem"}>
+        Log
+      </Typography>
+      <Divider />
+      <Stack spacing={"1.8rem"} marginTop={"1.8rem"}>
+        <Stack spacing={"1.2rem"}>
+          <Typography fontWeight={"bold"}>stdout</Typography>
+          <Box
+            sx={{
+              backgroundColor: (theme) => alpha(theme.palette.info.main, 0.1),
+              padding: "0.8rem",
+              paddingBottom: 0,
+            }}
+          >
+            <Highlight className="sh">
+              {stdout.trim() === "" ? "N/A" : stdout}
+            </Highlight>
+          </Box>
+        </Stack>
+        <Stack spacing={"1.2rem"}>
+          <Typography fontWeight={"bold"}>stderr</Typography>
+          <Box
+            sx={{
+              backgroundColor: (theme) => alpha(theme.palette.error.main, 0.1),
+              padding: "0.8rem",
+              paddingBottom: 0,
+            }}
+          >
+            <Highlight className="sh">
+              {stderr.trim() === "" ? "N/A" : stderr}
+            </Highlight>
+          </Box>
+        </Stack>
+      </Stack>
+    </Stack>
+  );
+};
+
+interface BenchmarkSampleChartProps {
+  label: string;
+  unit: string;
+  data: [number, number][];
+  yaxisStepSize?: number;
+}
+
+const BenchmarkSampleChart = (props: BenchmarkSampleChartProps) => {
+  const { label, data, unit, yaxisStepSize = 50 } = props;
+
+  return (
+    <MonitoringBlockContainer label={label} padding={"1.2rem 2.4rem"}>
+      <Box height={"15rem"}>
+        <ReactApexChart
+          options={{
+            chart: {
+              type: "area",
+              stacked: false,
+              height: "100%",
+              zoom: {
+                type: "x",
+                enabled: true,
+                autoScaleYaxis: true,
+              },
+              toolbar: {
+                autoSelected: "zoom",
+              },
+            },
+            dataLabels: {
+              enabled: false,
+            },
+            markers: {
+              size: 0,
+            },
+
+            fill: {
+              type: "gradient",
+              gradient: {
+                shadeIntensity: 1,
+                inverseColors: false,
+                opacityFrom: 0.5,
+                opacityTo: 0,
+                stops: [0, 90, 100],
+              },
+            },
+            yaxis: {
+              title: {
+                text: unit,
+              },
+              stepSize: yaxisStepSize,
+            },
+            xaxis: {
+              type: "datetime",
+            },
+            tooltip: {
+              shared: false,
+            },
+          }}
+          series={[
+            {
+              name: label,
+              data: data,
+            },
+          ]}
+          type="area"
+          height={"100%"}
+        />
+      </Box>
+    </MonitoringBlockContainer>
   );
 };
