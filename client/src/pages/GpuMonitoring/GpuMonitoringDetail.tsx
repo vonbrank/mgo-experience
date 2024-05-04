@@ -2,14 +2,16 @@ import { Box, Divider, Stack } from "@mui/material";
 import React from "react";
 import { MonitoringBlockContainer } from "../../components/Container";
 import ReactApexChart from "react-apexcharts";
+import { GpuStatsData } from "../../features/gpu/gpuAPI";
 
 interface CommonAprexChartProps {
   name: string;
   dataSequence: [time: number, data: number | null][];
+  yaxisStepSize?: number;
 }
 
 function CommonAprexChart(props: CommonAprexChartProps) {
-  const { name, dataSequence } = props;
+  const { name, dataSequence, yaxisStepSize = 50 } = props;
   return (
     <ReactApexChart
       options={{
@@ -35,7 +37,7 @@ function CommonAprexChart(props: CommonAprexChartProps) {
         },
         yaxis: {
           opposite: true,
-          stepSize: 50,
+          stepSize: yaxisStepSize,
         },
       }}
       series={[
@@ -50,7 +52,16 @@ function CommonAprexChart(props: CommonAprexChartProps) {
   );
 }
 
-const GpuMonitoringDetail = () => {
+interface GpuMonitoringDetailProps {
+  gpuStatDataSequence: {
+    time: number;
+    data: GpuStatsData;
+  }[];
+}
+
+const GpuMonitoringDetail = (props: GpuMonitoringDetailProps) => {
+  const { gpuStatDataSequence } = props;
+
   const containerPadding = "1.2rem 2.4rem";
 
   return (
@@ -63,7 +74,14 @@ const GpuMonitoringDetail = () => {
             padding={containerPadding}
           >
             <Box height={"18rem"}>
-              <CommonAprexChart name="CPU Frequency" dataSequence={[]} />
+              <CommonAprexChart
+                name="CPU Frequency"
+                dataSequence={gpuStatDataSequence.map((item) => [
+                  item.time,
+                  item.data.frequency_data.cpu_except_cores,
+                ])}
+                yaxisStepSize={1000}
+              />
             </Box>
           </MonitoringBlockContainer>
           <MonitoringBlockContainer
@@ -72,7 +90,14 @@ const GpuMonitoringDetail = () => {
             padding={containerPadding}
           >
             <Box height={"18rem"}>
-              <CommonAprexChart name="CPU Core Frequency" dataSequence={[]} />
+              <CommonAprexChart
+                name="CPU Core Frequency"
+                dataSequence={gpuStatDataSequence.map((item) => [
+                  item.time,
+                  item.data.frequency_data.gpu_core,
+                ])}
+                yaxisStepSize={1000}
+              />
             </Box>
           </MonitoringBlockContainer>
         </Stack>
@@ -83,7 +108,14 @@ const GpuMonitoringDetail = () => {
             padding={containerPadding}
           >
             <Box height={"18rem"}>
-              <CommonAprexChart name="Memory Frequency" dataSequence={[]} />
+              <CommonAprexChart
+                name="Memory Frequency"
+                dataSequence={gpuStatDataSequence.map((item) => [
+                  item.time,
+                  item.data.frequency_data.cpu_memory,
+                ])}
+                yaxisStepSize={50}
+              />
             </Box>
           </MonitoringBlockContainer>
           <MonitoringBlockContainer
@@ -92,7 +124,14 @@ const GpuMonitoringDetail = () => {
             padding={containerPadding}
           >
             <Box height={"18rem"}>
-              <CommonAprexChart name="GPU Memory Frequency" dataSequence={[]} />
+              <CommonAprexChart
+                name="GPU Memory Frequency"
+                dataSequence={gpuStatDataSequence.map((item) => [
+                  item.time,
+                  item.data.frequency_data.gpu_memory,
+                ])}
+                yaxisStepSize={1000}
+              />
             </Box>
           </MonitoringBlockContainer>
         </Stack>
@@ -104,7 +143,13 @@ const GpuMonitoringDetail = () => {
             padding={containerPadding}
           >
             <Box height={"18rem"}>
-              <CommonAprexChart name="CPU Core Frequency" dataSequence={[]} />
+              <CommonAprexChart
+                name="CPU Core Frequency"
+                dataSequence={gpuStatDataSequence.map((item) => [
+                  item.time,
+                  item.data.power_data.cpu_whole,
+                ])}
+              />
             </Box>
           </MonitoringBlockContainer>
           <MonitoringBlockContainer
@@ -113,7 +158,13 @@ const GpuMonitoringDetail = () => {
             padding={containerPadding}
           >
             <Box height={"18rem"}>
-              <CommonAprexChart name="GPU Core Power" dataSequence={[]} />
+              <CommonAprexChart
+                name="GPU Core Power"
+                dataSequence={gpuStatDataSequence.map((item) => [
+                  item.time,
+                  item.data.power_data.gpu_whole,
+                ])}
+              />
             </Box>
           </MonitoringBlockContainer>
         </Stack>
@@ -124,18 +175,16 @@ const GpuMonitoringDetail = () => {
             padding={containerPadding}
           >
             <Box height={"18rem"}>
-              <CommonAprexChart name="Memory Frequency" dataSequence={[]} />
+              <CommonAprexChart
+                name="Memory Frequency"
+                dataSequence={gpuStatDataSequence.map((item) => [
+                  item.time,
+                  item.data.power_data.cpu_memory,
+                ])}
+              />
             </Box>
           </MonitoringBlockContainer>
-          <MonitoringBlockContainer
-            label="GPU Memory Power"
-            sx={{ flex: 1 }}
-            padding={containerPadding}
-          >
-            <Box height={"18rem"}>
-              <CommonAprexChart name="GPU Memory Power" dataSequence={[]} />
-            </Box>
-          </MonitoringBlockContainer>
+          <Box sx={{ flex: 1 }}></Box>
         </Stack>
       </Stack>
     </Stack>

@@ -117,6 +117,7 @@ export const useFetchUserGpuState: (
 interface PowerData {
   cpu_whole: number;
   gpu_whole: number;
+  cpu_memory: number;
 }
 
 interface EnergyData {
@@ -132,10 +133,19 @@ interface UsageData {
   gpu_memory: number;
 }
 
+interface ClockData {
+  cpu_cores: number[];
+  cpu_except_cores: number;
+  cpu_memory: number;
+  gpu_core: number;
+  gpu_memory: number;
+}
+
 export interface GpuStatsData {
   power_data: PowerData;
   energy_data: EnergyData;
   usage_data: UsageData;
+  frequency_data: ClockData;
   meta_data: {
     os: string;
     cpu: string;

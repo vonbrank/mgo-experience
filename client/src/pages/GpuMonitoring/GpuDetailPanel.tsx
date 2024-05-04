@@ -122,7 +122,9 @@ export const GpuDetail = (props: GpuDetailProps) => {
               gpuStatDataSequence={gpuStatData}
             />
           )}
-          {currentTab === "detail" && <GpuMonitoringDetail />}
+          {currentTab === "detail" && (
+            <GpuMonitoringDetail gpuStatDataSequence={gpuStatData} />
+          )}
           {currentTab === "benchmark" && <BenchmarkTab gpuModel={gpuModel} />}
         </Stack>
       </Stack>
