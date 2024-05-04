@@ -4,6 +4,11 @@ from schemas.gpu_schema import GpuMeasurementDataBase
 from schemas.json_protocol_schema import Request as JsonMessage
 from pydantic import ValidationError
 from services.jstp_client_service import gpu_monitoring_fetch
+import psutil
+import platform
+from cpuinfo import get_cpu_info
+from utils.human_readable_size import human_readable_size
+from utils import run_command_async
 
 host = "127.0.0.1"
 gpu_monitoring_port = int(os.environ.get("GPU_MONITORING_PORT"))
@@ -33,12 +38,72 @@ def get_gpu_measurement_data():
     return gpu_measurement_data
 
 
+gpu_server_meta_data: dict = dict()
+
+
+async def get_gpu_model():
+
+    # await asyncio.create_subprocess_shell("ls")
+    proc = await asyncio.create_subprocess_shell(
+        "nvidia-smi -L", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+    )
+    stdout, stderr = await proc.communicate()
+    line = stdout.decode()
+    _, line = line.split(":", 1)
+    line, _ = line.split("(")
+    return line.strip()
+
+
+async def init_meta_data():
+    global gpu_server_meta_data
+    cpu_info = get_cpu_info()
+    gpu_server_meta_data["os"] = platform.platform()
+    gpu_server_meta_data["cpu"] = cpu_info["brand_raw"]
+    gpu_server_meta_data["ram"] = human_readable_size(psutil.virtual_memory().total)
+    gpu_server_meta_data["gpu"] = await get_gpu_model()
+
+
 async def handle_update_gpu_state() -> None:
 
     if gpu_monitoring_mode == "NORMAL":
         await fetch_and_update_gpu_state()
     elif gpu_monitoring_mode == "FAKE_GPU_STATE":
         await update_fake_gpu_state()
+
+
+async def gpu_state_apply_cpu_and_memory_date(
+    gpu_measurement_data: GpuMeasurementDataBase,
+) -> None:
+    gpu_measurement_data_dict = gpu_measurement_data.model_dump()
+    gpu_measurement_data_dict["usage_data"]["cpu_except_cores"] = int(
+        psutil.cpu_percent()
+    )
+    gpu_measurement_data_dict["usage_data"]["cpu_cores"] = [
+        int(x) for x in psutil.cpu_percent(percpu=True)
+    ]
+    gpu_measurement_data_dict["usage_data"]["cpu_memory"] = int(
+        psutil.virtual_memory().percent
+    )
+
+    gpu_measurement_data = GpuMeasurementDataBase.model_validate(
+        gpu_measurement_data_dict
+    )
+
+    return gpu_measurement_data
+
+
+async def gpu_state_apply_meta_data(
+    gpu_measurement_data: GpuMeasurementDataBase,
+) -> None:
+    gpu_measurement_data_dict = gpu_measurement_data.model_dump()
+
+    gpu_measurement_data_dict["meta_data"] = dict(gpu_server_meta_data)
+
+    gpu_measurement_data = GpuMeasurementDataBase.model_validate(
+        gpu_measurement_data_dict
+    )
+
+    return gpu_measurement_data
 
 
 async def fetch_and_update_gpu_state() -> None:
@@ -70,11 +135,19 @@ async def fetch_and_update_gpu_state() -> None:
         gpu_measurement_data = GpuMeasurementDataBase.model_validate(
             new_gpu_measurement_data_dict
         )
+        gpu_measurement_data = await gpu_state_apply_cpu_and_memory_date(
+            gpu_measurement_data
+        )
+        gpu_measurement_data = await gpu_state_apply_meta_data(gpu_measurement_data)
 
 
 async def update_fake_gpu_state() -> None:
     global gpu_measurement_data
     gpu_measurement_data = GpuMeasurementDataBase.random()
+    gpu_measurement_data = await gpu_state_apply_cpu_and_memory_date(
+        gpu_measurement_data
+    )
+    gpu_measurement_data = await gpu_state_apply_meta_data(gpu_measurement_data)
 
 
 async def start_monitor_gpu_state() -> None:
@@ -90,12 +163,12 @@ async def start_monitor_gpu_state() -> None:
 
 
 async def stop_monitor_gpu_state() -> None:
-    
+
     global is_monitoring
-    
+
     if is_monitoring == False:
         return
-    
+
     is_monitoring = False
     await asyncio.sleep(gpu_monitoring_frequency * 2)
     await exit_gpu_monitoring()
@@ -106,10 +179,9 @@ async def init_gpu_monitoring() -> None:
     print("init gpu monitoring...")
 
     await asyncio.sleep(1)
-    
+
     if gpu_monitoring_mode == "NORMAL":
         await asyncio.sleep(1)
-
 
         try:
             await gpu_monitoring_fetch(
@@ -119,8 +191,9 @@ async def init_gpu_monitoring() -> None:
         except Exception as e:
             print(e)
 
-        performance_measurement_task = asyncio.create_task(run_performance_measurement())
-
+        performance_measurement_task = asyncio.create_task(
+            run_performance_measurement()
+        )
 
         print("Reset")
         await gpu_monitoring_fetch(
@@ -143,7 +216,7 @@ async def init_gpu_monitoring() -> None:
 async def exit_gpu_monitoring() -> None:
 
     print("exit gpu monitoring...")
-    
+
     if gpu_monitoring_mode == "NORMAL":
 
         print("Time stamp end")
