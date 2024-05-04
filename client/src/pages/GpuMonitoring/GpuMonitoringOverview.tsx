@@ -33,6 +33,22 @@ export const GpuMonitoringOverview = (props: GpuMonitoringOverviewProps) => {
   //   });
   // }, [data]);
 
+  const gpuMemorySize = 11;
+
+  const metaData = (() => {
+    if (gpuStatDataSequence.length > 0) {
+      const lastData = gpuStatDataSequence[gpuStatDataSequence.length - 1];
+      return {
+        os: lastData.data.meta_data.os,
+        cpu: lastData.data.meta_data.cpu,
+        ram: lastData.data.meta_data.ram,
+        gpu: lastData.data.meta_data.gpu,
+      };
+    } else {
+      return { os: "", cpu: "", ram: "", gpu: "" };
+    }
+  })();
+
   return (
     <Stack>
       <Stack direction={"row"}>
@@ -57,19 +73,22 @@ export const GpuMonitoringOverview = (props: GpuMonitoringOverviewProps) => {
             }}
           >
             <Card>
-              <CardHeader title="Manjaro Linux 23.1" subheader="OS" />
+              <CardHeader title={metaData.os} subheader="OS" />
             </Card>
             <Card>
-              <CardHeader title="Intel Xeon E5-2697 v4" subheader="CPU" />
+              <CardHeader title={metaData.cpu} subheader="CPU" />
             </Card>
             <Card>
-              <CardHeader title="256GB" subheader="RAM" />
+              <CardHeader title={metaData.ram} subheader="RAM" />
             </Card>
             <Card>
-              <CardHeader title="NVIDIA Geforece RTX 3080 Ti" subheader="GPU" />
+              <CardHeader title={metaData.gpu} subheader="GPU" />
             </Card>
             <Card>
-              <CardHeader title="127.0.0.1:5100" subheader="End Point" />
+              <CardHeader
+                title={`${gpuModel.host}:${gpuModel.port}`}
+                subheader="End Point"
+              />
             </Card>
           </Stack>
         </MonitoringBlockContainer>
@@ -117,7 +136,7 @@ export const GpuMonitoringOverview = (props: GpuMonitoringOverviewProps) => {
                     name: "CPU Usage",
                     data: gpuStatDataSequence.map((item) => [
                       item.time,
-                      item.data.power_data.cpu_whole,
+                      item.data.usage_data.cpu_except_cores,
                     ]),
                   },
                 ]}
@@ -271,9 +290,23 @@ export const GpuMonitoringOverview = (props: GpuMonitoringOverviewProps) => {
                     },
                   },
                 },
-                labels: ["7.4GB/11GB"],
+                labels: [
+                  `${
+                    gpuStatDataSequence.length > 0
+                      ? (gpuMemorySize *
+                          gpuStatDataSequence[gpuStatDataSequence.length - 1]
+                            .data.usage_data.gpu_memory) /
+                        100
+                      : 0
+                  }GB/${gpuMemorySize}GB`,
+                ],
               }}
-              series={[67]}
+              series={[
+                gpuStatDataSequence.length > 0
+                  ? gpuStatDataSequence[gpuStatDataSequence.length - 1].data
+                      .usage_data.gpu_memory
+                  : 0,
+              ]}
               type="radialBar"
               height={"100%"}
             />

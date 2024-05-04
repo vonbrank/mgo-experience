@@ -125,19 +125,28 @@ interface EnergyData {
 }
 
 interface UsageData {
+  cpu_cores: number[];
+  cpu_except_cores: number;
   cpu_memory: number;
   gpu_core: number;
+  gpu_memory: number;
 }
 
 export interface GpuStatsData {
   power_data: PowerData;
   energy_data: EnergyData;
   usage_data: UsageData;
+  meta_data: {
+    os: string;
+    cpu: string;
+    ram: string;
+    gpu: string;
+  };
 }
 
 interface FetchGpuStatsResponse {
   status: string;
-  data: GpuStatsData;
+  data: GpuStatsData | null;
 }
 
 export const useFetchGpuStats: (
@@ -179,23 +188,26 @@ export const useFetchGpuStats: (
       if (res.status === 200) {
         const { data } = res;
         const resultData = data.data;
-        setData((current) => {
-          const newData: {
-            time: number;
-            data: GpuStatsData;
-          }[] = [
-            ...current,
-            {
-              time: new Date().getTime(),
-              data: resultData,
-            },
-          ];
-          if (newData.length > maxDataItemCount) {
-            var elementsToRemove = newData.length - 10;
-            newData.splice(0, elementsToRemove);
-          }
-          return newData;
-        });
+
+        if (resultData) {
+          setData((current) => {
+            const newData: {
+              time: number;
+              data: GpuStatsData;
+            }[] = [
+              ...current,
+              {
+                time: new Date().getTime(),
+                data: resultData,
+              },
+            ];
+            if (newData.length > maxDataItemCount) {
+              var elementsToRemove = newData.length - 10;
+              newData.splice(0, elementsToRemove);
+            }
+            return newData;
+          });
+        }
       } else {
         setData([]);
         setError(new Error("Fetch user gpu state failed"));
