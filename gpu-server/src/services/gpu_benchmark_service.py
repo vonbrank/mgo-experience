@@ -1,6 +1,8 @@
 import os
 import asyncio
 from datetime import datetime
+from services.gpu_service import get_gpu_measurement_data
+from schemas.benchmark_schema import BenchmarkSampleData, BenchmarkSummaryData
 
 benchmark_state = "IDLE"
 
@@ -29,6 +31,7 @@ def get_benchmark_report_default_value():
         "stdout": "",
         "stderr": "",
         "data": list(),
+        "summary": None,
         "testCase": None,
     }
 
@@ -112,11 +115,34 @@ async def start_run_bechmark(test_program_name: str, enable_mf_gpeoe: bool) -> s
     return benchmark_state
 
 
+async def start_monitoring_during_running():
+    global benchmark_state
+    global benchmark_report
+
+    measurement_data = get_gpu_measurement_data()
+    benchmark_report_data: list[BenchmarkSampleData] = benchmark_report["data"]
+    benchmark_report_data.append(
+        BenchmarkSampleData.from_measurement_data(measurement_data)
+    )
+    benchmark_report["data"] = benchmark_report_data
+
+    while benchmark_state == "RUNNING":
+        await asyncio.sleep(1)
+        measurement_data = get_gpu_measurement_data()
+        benchmark_report_data: list[BenchmarkSampleData] = benchmark_report["data"]
+        benchmark_report_data.append(
+            BenchmarkSampleData.from_measurement_data(measurement_data)
+        )
+        benchmark_report["data"] = benchmark_report_data
+
+
 async def run_bechmark(test_program_name: str, enable_mf_gpeoe: bool) -> None:
 
     global benchmark_report
     global benchmark_state
     global current_running_test_case
+
+    asyncio.create_task(start_monitoring_during_running())
 
     if mfgpoeo_work_mode == "FAKE_RUNNING":
 
@@ -158,7 +184,10 @@ async def run_bechmark(test_program_name: str, enable_mf_gpeoe: bool) -> None:
         benchmark_report["testCase"] = current_running_test_case
         await asyncio.sleep(5)
         current_running_test_case = None
+        benchmark_report["stdout"] = "Test stdout."
+        benchmark_report["stderr"] = "Test stderr."
 
+    benchmark_report["summary"] = BenchmarkSummaryData.random()
     benchmark_report["completedTime"] = datetime.now().isoformat()
 
     benchmark_state = "COMPLETED"
